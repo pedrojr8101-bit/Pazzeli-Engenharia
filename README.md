@@ -27,9 +27,16 @@ mesma abordagem do Maison Lux, usando a lib `jose`). De lá dá pra:
 
 - ver todos os leads que completaram o simulador, com o resultado da última
   simulação de cada um (potência, economia estimada);
+- ver um resumo visual no topo do dashboard: total de leads, taxa de
+  conversão, economia mensal somada, ticket médio e um gráfico de leads por
+  status;
 - mudar o status do lead (Novo → Contatado → Proposta enviada → Convertido/Perdido);
 - abrir o detalhe de um lead e ver o histórico completo de simulações dele;
-- baixar a **proposta em PDF** de qualquer simulação, com um clique.
+- **editar a proposta de cada negócio** — definir um preço final negociado
+  (diferente da estimativa automática) e adicionar observações (desconto,
+  condições de pagamento etc.), que aparecem tanto na tela quanto no PDF;
+- baixar a **proposta em PDF** de qualquer simulação, com um clique — já
+  usando o preço negociado e as observações, se houver.
 
 Criar o primeiro admin — duas formas, use a que for mais fácil pra você:
 

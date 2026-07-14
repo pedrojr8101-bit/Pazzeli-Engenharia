@@ -100,6 +100,11 @@ model Simulacao {
   investimentoEstimado   Float
   paybackAnos            Float?
 
+  // Ajustes comerciais — preenchidos pelo admin, negócio a negócio.
+  // Quando presentes, prevalecem sobre os valores calculados na proposta.
+  investimentoFinal   Float? // preço negociado, se diferente da estimativa
+  observacoesProposta String? // condições, desconto, observações do fechamento
+
   createdAt DateTime @default(now())
 
   @@index([leadId])

@@ -129,11 +129,24 @@ export function PropostaPDF({ simulacao, lead, empresa }: PropostaPDFProps) {
 
         <View style={estilos.secaoTitulo}><Text>Investimento estimado</Text></View>
         <View style={estilos.destaque}>
-          <Text style={estilos.destaqueValor}>{moeda(simulacao.investimentoEstimado)}</Text>
+          <Text style={estilos.destaqueValor}>
+            {moeda(simulacao.investimentoFinal ?? simulacao.investimentoEstimado)}
+          </Text>
           <Text style={estilos.cartaoRotulo}>
-            Valor de referência — sujeito a confirmação após vistoria técnica.
+            {simulacao.investimentoFinal
+              ? "Condição comercial acordada."
+              : "Valor de referência — sujeito a confirmação após vistoria técnica."}
           </Text>
         </View>
+
+        {simulacao.observacoesProposta && (
+          <>
+            <View style={estilos.secaoTitulo}><Text>Observações</Text></View>
+            <View style={{ ...estilos.destaque, marginBottom: 16 }}>
+              <Text style={{ fontSize: 9, lineHeight: 1.5 }}>{simulacao.observacoesProposta}</Text>
+            </View>
+          </>
+        )}
 
         <View style={estilos.secaoTitulo}><Text>Premissas técnicas consideradas</Text></View>
         <View style={estilos.premissas}>
