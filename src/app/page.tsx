@@ -1,0 +1,19 @@
+import { ComoFunciona } from "@/components/ComoFunciona";
+import { Diferenciais } from "@/components/Diferenciais";
+import { Footer } from "@/components/Footer";
+import { Header } from "@/components/Header";
+import { Hero } from "@/components/Hero";
+
+export default function HomePage() {
+  return (
+    <>
+      <Header />
+      <main>
+        <Hero />
+        <ComoFunciona />
+        <Diferenciais />
+      </main>
+      <Footer />
+    </>
+  );
+}
