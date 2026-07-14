@@ -30,6 +30,14 @@ enum TipoLigacao {
   TRIFASICO
 }
 
+model AdminUser {
+  id        String   @id @default(cuid())
+  nome      String
+  email     String   @unique
+  senhaHash String
+  createdAt DateTime @default(now())
+}
+
 model Lead {
   id         String      @id @default(cuid())
   nome       String
