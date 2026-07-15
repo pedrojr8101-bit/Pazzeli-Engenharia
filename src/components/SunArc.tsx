@@ -35,13 +35,13 @@ export function SunArc({ hsp, label, className }: SunArcProps) {
   return (
     <div className={className}>
       <svg viewBox="0 0 400 200" className="w-full" aria-hidden={hsp === undefined}>
-        <line x1="10" y1="180" x2="390" y2="180" stroke="currentColor" className="text-duskline" strokeWidth="1" />
+        <line x1="10" y1="180" x2="390" y2="180" stroke="currentColor" className="text-borderlight" strokeWidth="1" />
 
         <path
           d="M 20 180 A 180 160 0 0 1 380 180"
           fill="none"
           stroke="currentColor"
-          className="text-duskline animate-arc-draw"
+          className="text-borderlight animate-arc-draw"
           strokeWidth="1.5"
           strokeDasharray="220"
           strokeLinecap="round"
@@ -55,13 +55,13 @@ export function SunArc({ hsp, label, className }: SunArcProps) {
             x={cx}
             y={cy - 26}
             textAnchor="middle"
-            className="fill-paper font-mono text-[13px]"
+            className="fill-graphite font-mono text-[13px]"
           >
             {hsp.toFixed(1)} h
           </text>
         )}
       </svg>
-      {label && <p className="mt-1 text-center text-xs text-paper/50">{label}</p>}
+      {label && <p className="mt-1 text-center text-xs text-graphitesoft">{label}</p>}
     </div>
   );
 }

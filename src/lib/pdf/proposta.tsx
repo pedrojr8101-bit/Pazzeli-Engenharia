@@ -2,13 +2,15 @@ import { Document, Image, Page, StyleSheet, Text, View } from "@react-pdf/render
 import type { Lead, Simulacao } from "@prisma/client";
 import { empresaConfig, premissasFinanceiras as PREMISSAS } from "../empresa-config";
 import { CUSTO_DISPONIBILIDADE_KWH, PERFORMANCE_RATIO_PADRAO } from "../tarifas";
-import { calcularFinanciamentoSAC } from "../financiamento";
 import {
   calcularImpactoAmbiental,
   calcularProjecaoFinanceira,
   formatarPayback,
 } from "../projecaoFinanceira";
 import { GraficoBarrasMensal, GraficoLinhasFluxoCaixa } from "./charts";
+import { IconeArvore, IconeMoeda, IconeNuvem, OndaDecorativa } from "./visuais";
+import { capaPazelli, logoPazelli } from "./assets-pazelli";
+import { logoMap } from "./logo-map";
 
 const cores = {
   texto: "#1C1C1A",
@@ -57,12 +59,12 @@ const estilos = StyleSheet.create({
   },
   celulaHeader: {
     flex: 1,
-    padding: 6,
+    padding: 4,
     fontSize: 7,
     fontFamily: "Helvetica-Bold",
     textAlign: "center",
   },
-  celula: { flex: 1, padding: 6, fontSize: 7, textAlign: "center" },
+  celula: { flex: 1, padding: 4, fontSize: 7, textAlign: "center" },
   cartao: {
     flex: 1,
     borderWidth: 1,
@@ -88,6 +90,15 @@ function RodapePagina({ numero, pagina, totalPaginas }: { numero: string; pagina
     <Text style={estilos.rodapePagina} fixed>
       {numero} — {empresaConfig.nome} · página {pagina} de {totalPaginas}
     </Text>
+  );
+}
+
+function CampoDados({ rotulo, valor }: { rotulo: string; valor?: string | null }) {
+  return (
+    <View style={{ flexDirection: "row", borderBottomWidth: 1, borderBottomColor: cores.linha, paddingVertical: 6 }}>
+      <Text style={{ flex: 1, fontSize: 8, color: cores.suave }}>{rotulo}</Text>
+      <Text style={{ flex: 2, fontSize: 9 }}>{valor || ""}</Text>
+    </View>
   );
 }
 
@@ -126,6 +137,9 @@ export function PropostaPDF({ simulacao, lead }: PropostaPDFProps) {
   const itens: ItemProposta[] =
     itensExistentes && itensExistentes.length > 0 ? itensExistentes : itensPadrao(simulacao);
   const totalItens = itens.reduce((soma, item) => soma + item.quantidade * item.valorUnitario, 0);
+  const valorPorWp = simulacao.potenciaInstaladaKwp > 0
+    ? (totalItens > 0 ? totalItens : valorTotal) / (simulacao.potenciaInstaladaKwp * 1000)
+    : 0;
 
   const hspMensal = (simulacao.hspMensal as number[] | null) ?? new Array(12).fill(simulacao.hspMedioAnual);
   const dadosMensais = MESES.map((mes, i) => ({
@@ -145,35 +159,38 @@ export function PropostaPDF({ simulacao, lead }: PropostaPDFProps) {
   });
 
   const impacto = calcularImpactoAmbiental(simulacao.geracaoMensalKwh);
-  const financiamentos = empresaConfig.financiamento.map((opcao) =>
-    calcularFinanciamentoSAC(valorTotal, opcao)
-  );
-  const valorAVista = valorTotal * (1 - empresaConfig.descontoAVistaPercentual);
   const consumoMinimo = simulacao.tipoLigacao ? CUSTO_DISPONIBILIDADE_KWH[simulacao.tipoLigacao] : 30;
 
-  const totalPaginas = empresaConfig.fotosProjetos.length > 0 ? 12 : 11;
+  const totalPaginas = 10;
 
   return (
     <Document title={`Proposta — ${lead.nome}`}>
-      {/* Página 1 — Capa */}
-      <Page size="A4" style={estilos.pagina}>
-        <Text style={{ fontSize: 34, fontFamily: "Helvetica-Bold", marginTop: 60 }}>
-          Proposta{"\n"}Comercial
-        </Text>
-        <Text style={{ fontSize: 10, marginTop: 24 }}>
-          A seguinte proposta comercial foi elaborada em {hoje.toLocaleDateString("pt-BR")} para
-        </Text>
-        <Text style={{ fontSize: 13, fontFamily: "Helvetica-Bold", marginTop: 2 }}>{lead.nome}</Text>
-        <Text style={{ fontSize: 9, color: cores.suave, marginTop: 14 }}>
-          A proposta é válida até {validade.toLocaleDateString("pt-BR")}.{"\n"}Número da proposta{" "}
-          {numero}.
-        </Text>
-
-        <View style={{ position: "absolute", bottom: 40, left: 40 }}>
-          <Text style={{ fontSize: 11, fontFamily: "Helvetica-Bold" }}>{empresaConfig.nome}</Text>
-          {empresaConfig.site && <Text style={{ fontSize: 8, color: cores.suave }}>{empresaConfig.site}</Text>}
-          {empresaConfig.telefone && (
-            <Text style={{ fontSize: 8, color: cores.suave }}>Tel: {empresaConfig.telefone}</Text>
+      {/* Página 1 — Capa (foto real da Pazelli) */}
+      <Page size="A4" style={{ fontFamily: "Helvetica" }}>
+        <Image
+          src={capaPazelli}
+          fixed
+          style={{ position: "absolute", top: 0, left: 0, width: 595, height: 842 }}
+        />
+        <View style={{ padding: 40, position: "relative" }}>
+          <Text style={{ fontSize: 30, fontFamily: "Helvetica-Bold", marginTop: 130, color: "#FFFFFF" }}>
+            Proposta
+          </Text>
+          <Text style={{ fontSize: 30, fontFamily: "Helvetica-Bold", color: "#F5A623", marginTop: -4 }}>
+            Comercial
+          </Text>
+          <Text style={{ fontSize: 12, fontFamily: "Helvetica-Bold", marginTop: 40, color: "#FFFFFF" }}>
+            {lead.nome}
+          </Text>
+        </View>
+        <View style={{ position: "absolute", bottom: 36, left: 40 }}>
+          <Text style={{ fontSize: 10, fontFamily: "Helvetica-Bold", color: "#FFFFFF" }}>{empresaConfig.nome}</Text>
+          {empresaConfig.site && <Text style={{ fontSize: 8, color: "#E5E1D6" }}>{empresaConfig.site}</Text>}
+          {Boolean(empresaConfig.telefone) && (
+            <Text style={{ fontSize: 8, color: "#E5E1D6" }}>
+              Tel: {empresaConfig.telefone}
+              {empresaConfig.telefoneSecundario ? ` - ${empresaConfig.telefoneSecundario}` : ""}
+            </Text>
           )}
         </View>
       </Page>
@@ -182,24 +199,30 @@ export function PropostaPDF({ simulacao, lead }: PropostaPDFProps) {
       <Page size="A4" style={estilos.pagina}>
         <Text style={estilos.tituloGrande}>{empresaConfig.nome}</Text>
         <Text style={estilos.subtitulo}>Conheça mais sobre a {empresaConfig.nome}</Text>
-        <Text style={{ lineHeight: 1.6, marginBottom: 20 }}>{empresaConfig.sobre}</Text>
+        <Text style={{ lineHeight: 1.35, marginBottom: 20 }}>{empresaConfig.sobre}</Text>
 
-        {empresaConfig.logoUrl && (
-          <Image src={empresaConfig.logoUrl} style={{ width: 90, marginBottom: 12 }} />
-        )}
+        <Image src={logoPazelli} style={{ width: 70, marginBottom: 16 }} />
 
-        <Text style={{ fontFamily: "Helvetica-Bold", marginBottom: 4 }}>{empresaConfig.nome}</Text>
+        <Text style={{ fontFamily: "Helvetica-Bold", marginBottom: 4 }}>{empresaConfig.razaoSocial}</Text>
+        <Text style={{ color: cores.suave }}>CNPJ: {empresaConfig.cnpj}</Text>
         <Text style={{ color: cores.suave }}>
           {empresaConfig.endereco.rua}, {empresaConfig.endereco.bairro}
         </Text>
         <Text style={{ color: cores.suave }}>
           {empresaConfig.endereco.cidade}, {empresaConfig.endereco.uf}, {empresaConfig.endereco.cep}
         </Text>
-        {empresaConfig.telefone && (
-          <Text style={{ color: cores.suave }}>Telefone: {empresaConfig.telefone}</Text>
+        {Boolean(empresaConfig.telefone) && (
+          <Text style={{ color: cores.suave }}>
+            Telefone: {empresaConfig.telefone}
+            {empresaConfig.telefoneSecundario ? ` - ${empresaConfig.telefoneSecundario}` : ""}
+          </Text>
         )}
-        {empresaConfig.email && <Text style={{ color: cores.suave }}>Email: {empresaConfig.email}</Text>}
-        {empresaConfig.site && <Text style={{ color: cores.suave }}>Site: {empresaConfig.site}</Text>}
+        {Boolean(empresaConfig.email) && <Text style={{ color: cores.suave }}>Email: {empresaConfig.email}</Text>}
+        {Boolean(empresaConfig.site) && <Text style={{ color: cores.suave }}>Site: {empresaConfig.site}</Text>}
+
+        <View style={{ position: "absolute", bottom: 50, left: 40, right: 40 }}>
+          <OndaDecorativa />
+        </View>
 
         <RodapePagina numero={numero} pagina={2} totalPaginas={totalPaginas} />
       </Page>
@@ -222,7 +245,10 @@ export function PropostaPDF({ simulacao, lead }: PropostaPDFProps) {
           <View style={estilos.linhaDivisoria} />
           <View>
             <Text style={{ fontFamily: "Helvetica-Bold", marginBottom: 3 }}>Valores</Text>
-            <Text style={{ color: cores.suave, lineHeight: 1.5 }}>{empresaConfig.valores.join(", ")}.</Text>
+            <Text style={{ color: cores.suave, lineHeight: 1.35 }}>
+              Temos como pilares da nossa empresa:{"\n"}
+              {empresaConfig.valores.map((v) => `- ${v};`).join("\n")}
+            </Text>
           </View>
         </View>
 
@@ -230,19 +256,25 @@ export function PropostaPDF({ simulacao, lead }: PropostaPDFProps) {
         <Text style={estilos.subtitulo}>
           O sucesso é resultado da escolha de produtos de alta qualidade.
         </Text>
-        <Text>{empresaConfig.parceiros.join("   ·   ")}</Text>
+        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 16, alignItems: "center" }}>
+          {empresaConfig.parceiros.map((parceiro) => (
+            <Image
+              key={parceiro.nome}
+              src={logoMap[parceiro.logoKey]}
+              style={{ height: 26, objectFit: "contain" }}
+            />
+          ))}
+        </View>
 
         <RodapePagina numero={numero} pagina={3} totalPaginas={totalPaginas} />
       </Page>
 
       {/* Página 4 — Usina fotovoltaica */}
       <Page size="A4" style={estilos.pagina}>
-        <Text style={estilos.tituloGrande}>Usina fotovoltaica</Text>
-        <Text style={estilos.subtitulo}>
-          Usina fotovoltaica dimensionada para atender a média mensal de consumo informada.
-        </Text>
+        <Text style={estilos.tituloGrande}>Detalhes da proposta</Text>
+        <Text style={{ fontSize: 13, fontFamily: "Helvetica-Bold", marginBottom: 10 }}>Usina fotovoltaica</Text>
 
-        <Text style={estilos.secaoTitulo}>Conta de energia considerada</Text>
+        <Text style={estilos.secaoTitulo}>Contas de energia consideradas</Text>
         <View style={estilos.tabela}>
           <View style={estilos.tabelaHeader}>
             <Text style={estilos.celulaHeader}>Unidade</Text>
@@ -298,7 +330,7 @@ export function PropostaPDF({ simulacao, lead }: PropostaPDFProps) {
         <Text style={estilos.subtitulo}>Estimativa de geração mensal comparada ao consumo.</Text>
         <GraficoBarrasMensal dados={dadosMensais} />
 
-        <Text style={{ marginTop: 20, color: cores.suave, lineHeight: 1.6 }}>
+        <Text style={{ marginTop: 20, color: cores.suave, lineHeight: 1.35 }}>
           A geração estimada considera a irradiação solar real da localização informada e um
           fator de performance de {(PERFORMANCE_RATIO_PADRAO * 100).toFixed(0)}%, que reflete perdas
           típicas do sistema (inversor, cabeamento, temperatura e sujeira).
@@ -307,10 +339,10 @@ export function PropostaPDF({ simulacao, lead }: PropostaPDFProps) {
         <RodapePagina numero={numero} pagina={5} totalPaginas={totalPaginas} />
       </Page>
 
-      {/* Página 6 — Lista de produtos */}
+      {/* Página 6 — Os produtos */}
       <Page size="A4" style={estilos.pagina}>
-        <Text style={estilos.tituloGrande}>Produtos orçados</Text>
-        <Text style={estilos.subtitulo}>Lista de produtos e serviços orçados nesta proposta.</Text>
+        <Text style={estilos.tituloGrande}>Os produtos</Text>
+        <Text style={estilos.subtitulo}>Lista de produtos orçados nesta proposta comercial.</Text>
 
         <View style={estilos.tabela}>
           <View style={estilos.tabelaHeader}>
@@ -338,16 +370,20 @@ export function PropostaPDF({ simulacao, lead }: PropostaPDFProps) {
             borderColor: cores.linha,
             borderRadius: 4,
             padding: 12,
-            flexDirection: "row",
-            justifyContent: "flex-end",
+            alignItems: "flex-end",
           }}
         >
           <Text style={{ fontFamily: "Helvetica-Bold", fontSize: 11 }}>
             Valor total da proposta: {moeda(totalItens > 0 ? totalItens : valorTotal)}
           </Text>
+          {valorPorWp > 0 && (
+            <Text style={{ fontSize: 7, color: cores.suave, marginTop: 2 }}>
+              * {moeda(valorPorWp)} por Wp
+            </Text>
+          )}
         </View>
 
-        {simulacao.observacoesProposta && (
+        {Boolean(simulacao.observacoesProposta) && (
           <>
             <Text style={estilos.secaoTitulo}>Observações</Text>
             <Text style={{ color: cores.suave, lineHeight: 1.5 }}>{simulacao.observacoesProposta}</Text>
@@ -362,44 +398,28 @@ export function PropostaPDF({ simulacao, lead }: PropostaPDFProps) {
         <Text style={estilos.tituloGrande}>Pagamento e Entrega</Text>
         <Text style={estilos.subtitulo}>Conheça as opções de pagamento disponíveis.</Text>
 
-        <View style={estilos.grid3}>
-          <View style={estilos.cartao}>
-            <Text style={{ fontFamily: "Helvetica-Bold", marginBottom: 6 }}>Pagamento à vista</Text>
-            <Text style={{ color: cores.suave }}>
-              {(empresaConfig.descontoAVistaPercentual * 100).toFixed(0)}% de desconto
-            </Text>
-            <Text style={{ fontFamily: "Helvetica-Bold", fontSize: 12, marginTop: 4 }}>
-              {moeda(valorAVista)}
-            </Text>
-          </View>
-          <View style={estilos.cartao}>
-            <Text style={{ fontFamily: "Helvetica-Bold", marginBottom: 6 }}>Prazo de entrega</Text>
-            <Text style={{ color: cores.suave }}>{empresaConfig.prazoEntregaDias} dias corridos</Text>
-          </View>
+        <View style={[estilos.cartao, { alignSelf: "flex-start", paddingHorizontal: 20 }]}>
+          <Text style={{ fontFamily: "Helvetica-Bold" }}>{empresaConfig.prazoEntregaDias} dias</Text>
+          <Text style={estilos.cartaoRotulo}>Prazo de entrega</Text>
         </View>
 
-        <Text style={estilos.secaoTitulo}>Pagamento a prazo — opções de financiamento</Text>
-        <View style={estilos.tabela}>
-          <View style={estilos.tabelaHeader}>
-            <Text style={estilos.celulaHeader}>Instituição</Text>
-            <Text style={estilos.celulaHeader}>Parcelas</Text>
-            <Text style={estilos.celulaHeader}>Entrada</Text>
-            <Text style={estilos.celulaHeader}>1ª parcela</Text>
-            <Text style={estilos.celulaHeader}>Última parcela</Text>
+        <Text style={estilos.secaoTitulo}>Pagamento a prazo</Text>
+        <View style={{ borderWidth: 1, borderColor: cores.linha, borderRadius: 4, padding: 16 }}>
+          <Text style={{ color: cores.suave, marginBottom: 10 }}>
+            Financiamento disponível através dos parceiros:
+          </Text>
+          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 16, alignItems: "center" }}>
+            {empresaConfig.bancos.map((banco) => (
+              <Image
+                key={banco.nome}
+                src={logoMap[banco.logoKey]}
+                style={{ height: 24, objectFit: "contain" }}
+              />
+            ))}
           </View>
-          {financiamentos.map((f) => (
-            <View key={f.banco} style={estilos.tabelaLinha}>
-              <Text style={estilos.celula}>{f.banco}</Text>
-              <Text style={estilos.celula}>{f.parcelas}x (SAC)</Text>
-              <Text style={estilos.celula}>{moeda(f.valorEntrada)}</Text>
-              <Text style={estilos.celula}>{moeda(f.primeiraParcela)}</Text>
-              <Text style={estilos.celula}>{moeda(f.ultimaParcela)}</Text>
-            </View>
-          ))}
         </View>
         <Text style={{ fontSize: 7, color: cores.suave, marginTop: 6 }}>
-          * Valores simulados via tabela SAC e sujeitos a alteração no momento da contratação.
-          {"\n"}** Sujeito a aprovação de crédito.
+          * Sujeito a aprovação de crédito e às condições vigentes de cada instituição.
         </Text>
 
         <RodapePagina numero={numero} pagina={7} totalPaginas={totalPaginas} />
@@ -414,16 +434,31 @@ export function PropostaPDF({ simulacao, lead }: PropostaPDFProps) {
 
         <View style={estilos.tabela}>
           <View style={estilos.tabelaHeader} fixed>
-            <Text style={[estilos.celulaHeader, { flex: 0.7 }]}>Ano</Text>
+            <Text style={[estilos.celulaHeader, { flex: 0.9 }]}>Status</Text>
+            <Text style={[estilos.celulaHeader, { flex: 0.6 }]}>Ano</Text>
             <Text style={estilos.celulaHeader}>Tarifa (R$)</Text>
             <Text style={estilos.celulaHeader}>Economia (R$)</Text>
             <Text style={estilos.celulaHeader}>Resultado (R$)</Text>
-            <Text style={estilos.celulaHeader}>CDB 140% CDI</Text>
+            <Text style={estilos.celulaHeader}>CDB {(PREMISSAS.percentualCdb * 100).toFixed(0)}% CDI</Text>
             <Text style={estilos.celulaHeader}>Poupança</Text>
           </View>
           {projecao.linhas.map((linha) => (
             <View key={linha.ano} style={estilos.tabelaLinha} wrap={false}>
-              <Text style={[estilos.celula, { flex: 0.7 }]}>{linha.ano}</Text>
+              <View style={{ flex: 0.9, padding: 3, alignItems: "center" }}>
+                <Text
+                  style={{
+                    fontSize: 6.5,
+                    paddingVertical: 1,
+                    paddingHorizontal: 5,
+                    borderRadius: 8,
+                    color: linha.status === "Lucro" ? "#2F7D46" : "#1E6FA8",
+                    backgroundColor: linha.status === "Lucro" ? "#E1F5E5" : "#DCEEFB",
+                  }}
+                >
+                  {linha.status}
+                </Text>
+              </View>
+              <Text style={[estilos.celula, { flex: 0.6 }]}>{linha.ano}</Text>
               <Text style={estilos.celula}>{linha.tarifa.toFixed(2)}</Text>
               <Text style={estilos.celula}>{moeda(linha.economiaGerada)}</Text>
               <Text
@@ -478,118 +513,73 @@ export function PropostaPDF({ simulacao, lead }: PropostaPDFProps) {
           anos={projecao.linhas.map((l) => l.ano)}
           series={[
             { rotulo: "Sistema fotovoltaico", cor: "#C9791A", valores: projecao.linhas.map((l) => l.resultadoFinanceiro) },
-            { rotulo: "CDB 140% CDI", cor: "#B33B3B", valores: projecao.linhas.map((l) => l.cdb - valorTotal) },
+            { rotulo: `CDB ${(PREMISSAS.percentualCdb * 100).toFixed(0)}% CDI`, cor: "#B33B3B", valores: projecao.linhas.map((l) => l.cdb - valorTotal) },
             { rotulo: "Poupança", cor: "#B8901F", valores: projecao.linhas.map((l) => l.poupanca - valorTotal) },
           ]}
         />
 
         <Text style={estilos.secaoTitulo}>Retorno ambiental em {PREMISSAS.horizonteAnos} anos</Text>
         <View style={estilos.grid3}>
-          <View style={estilos.cartao}>
-            <Text style={estilos.cartaoValor}>{impacto.co2ToneladasEvitadas.toFixed(2)} t</Text>
-            <Text style={estilos.cartaoRotulo}>de CO2 que não serão emitidos na atmosfera</Text>
+          <View style={[estilos.cartao, { alignItems: "center" }]}>
+            <IconeNuvem cor={cores.suave} />
+            <Text style={[estilos.cartaoValor, { marginTop: 6 }]}>
+              {impacto.co2ToneladasEvitadas.toFixed(2)} t
+            </Text>
+            <Text style={[estilos.cartaoRotulo, { textAlign: "center" }]}>
+              de CO2 que não serão emitidos na atmosfera
+            </Text>
           </View>
-          <View style={estilos.cartao}>
-            <Text style={estilos.cartaoValor}>{impacto.arvoresEquivalentes}</Text>
-            <Text style={estilos.cartaoRotulo}>árvores equivalentes para absorver esse CO2</Text>
+          <View style={[estilos.cartao, { alignItems: "center" }]}>
+            <IconeArvore cor={cores.suave} />
+            <Text style={[estilos.cartaoValor, { marginTop: 6 }]}>{impacto.arvoresEquivalentes}</Text>
+            <Text style={[estilos.cartaoRotulo, { textAlign: "center" }]}>
+              árvores equivalentes para absorver esse CO2
+            </Text>
           </View>
-          <View style={estilos.cartao}>
-            <Text style={estilos.cartaoValor}>{moeda(impacto.custoPlantioArvores)}</Text>
-            <Text style={estilos.cartaoRotulo}>custo aproximado para plantar essas árvores</Text>
+          <View style={[estilos.cartao, { alignItems: "center" }]}>
+            <IconeMoeda cor={cores.suave} />
+            <Text style={[estilos.cartaoValor, { marginTop: 6 }]}>{moeda(impacto.custoPlantioArvores)}</Text>
+            <Text style={[estilos.cartaoRotulo, { textAlign: "center" }]}>
+              custo aproximado para plantar essas árvores
+            </Text>
           </View>
         </View>
 
         <RodapePagina numero={numero} pagina={9} totalPaginas={totalPaginas} />
       </Page>
 
-      {/* Página 10 — Projetos executados (só se houver fotos configuradas) */}
-      {empresaConfig.fotosProjetos.length > 0 && (
-        <Page size="A4" style={estilos.pagina}>
-          <Text style={estilos.tituloGrande}>Projetos executados</Text>
-          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 12, marginTop: 14 }}>
-            {empresaConfig.fotosProjetos.map((foto) => (
-              <View key={foto.url} style={{ width: "45%" }}>
-                <Image src={foto.url} style={{ width: "100%", borderRadius: 4 }} />
-                <Text style={{ fontSize: 7, color: cores.suave, marginTop: 4, textAlign: "center" }}>
-                  {foto.legenda}
-                </Text>
-              </View>
-            ))}
-          </View>
-          <RodapePagina numero={numero} pagina={10} totalPaginas={totalPaginas} />
-        </Page>
-      )}
-
-      {/* Página — Termos e Condições */}
+      {/* Página 10 — Aceite da Proposta */}
       <Page size="A4" style={estilos.pagina}>
-        <Text style={estilos.tituloGrande}>Termos e Condições</Text>
-        <Text style={estilos.subtitulo}>
-          Termos e condições para fornecimento dos produtos e serviços descritos nesta proposta.
-        </Text>
-
-        <View style={estilos.tabela}>
-          <View style={estilos.tabelaLinha}>
-            <Text style={{ flex: 0.6, padding: 8, fontFamily: "Helvetica-Bold" }}>Suporte</Text>
-            <Text style={{ flex: 2, padding: 8, color: cores.suave, lineHeight: 1.5 }}>
-              {empresaConfig.suporte}
-            </Text>
-          </View>
-          <View style={{ flexDirection: "row" }}>
-            <Text style={{ flex: 0.6, padding: 8, fontFamily: "Helvetica-Bold" }}>Garantia</Text>
-            <View style={{ flex: 2, padding: 8 }}>
-              {empresaConfig.garantias.map((g) => (
-                <Text key={g.item} style={{ color: cores.suave, marginBottom: 2 }}>
-                  — {g.item}: {g.meses} meses
-                </Text>
-              ))}
-            </View>
-          </View>
-        </View>
-
-        <RodapePagina
-          numero={numero}
-          pagina={empresaConfig.fotosProjetos.length > 0 ? 11 : 10}
-          totalPaginas={totalPaginas}
-        />
-      </Page>
-
-      {/* Página final — Termo de aceite */}
-      <Page size="A4" style={estilos.pagina}>
-        <Text style={estilos.tituloGrande}>Termo de aceite</Text>
-        <Text style={{ lineHeight: 1.6, marginTop: 6 }}>
+        <Text style={estilos.tituloGrande}>Aceite da Proposta</Text>
+        <Text style={{ lineHeight: 1.35, marginTop: 6, marginBottom: 20 }}>
           Estando de acordo com os produtos, valores e termos relatados nesta proposta e por
           estarem assim justos e contratados, {empresaConfig.nome} e {lead.nome} firmam a
           presente proposta.
         </Text>
 
-        <View style={{ flexDirection: "row", justifyContent: "space-between", marginTop: 90 }}>
-          <View style={{ width: "40%" }}>
+        <Text style={{ fontFamily: "Helvetica-Bold", fontSize: 12, marginBottom: 8 }}>Dados do cliente</Text>
+        <CampoDados rotulo="Nome do cliente:" valor={lead.nome} />
+        <CampoDados rotulo="CPF / CNPJ:" valor={simulacao.clienteCpf} />
+        <CampoDados rotulo="RG:" />
+        <CampoDados rotulo="Endereço:" valor={simulacao.clienteEnderecoCompleto} />
+        <CampoDados rotulo="Cidade:" valor={simulacao.cidade} />
+        <CampoDados rotulo="UF:" valor={simulacao.uf} />
+        <CampoDados rotulo="Email:" valor={lead.email} />
+        <CampoDados rotulo="Telefone:" valor={lead.telefone} />
+
+        <View style={{ flexDirection: "row", justifyContent: "space-between", marginTop: 70 }}>
+          <View style={{ width: "42%" }}>
             <View style={{ borderTopWidth: 1, borderTopColor: cores.texto, marginBottom: 6 }} />
-            <Text style={{ textAlign: "center" }}>{empresaConfig.nome}</Text>
+            <Text style={{ textAlign: "center" }}>{empresaConfig.razaoSocial}</Text>
+            <Text style={{ textAlign: "center", fontSize: 8, color: cores.suave }}>{empresaConfig.cnpj}</Text>
           </View>
-          <View style={{ width: "40%" }}>
+          <View style={{ width: "42%" }}>
             <View style={{ borderTopWidth: 1, borderTopColor: cores.texto, marginBottom: 6 }} />
             <Text style={{ textAlign: "center" }}>{lead.nome}</Text>
-            {simulacao.clienteCpf && (
-              <Text style={{ textAlign: "center", fontSize: 8, color: cores.suave, marginTop: 2 }}>
-                {simulacao.clienteCpf}
-              </Text>
-            )}
-            {simulacao.clienteEnderecoCompleto && (
-              <Text style={{ textAlign: "center", fontSize: 8, color: cores.suave, marginTop: 2 }}>
-                {simulacao.clienteEnderecoCompleto}
-                {"\n"}
-                {simulacao.cidade}, {simulacao.uf}
-              </Text>
-            )}
           </View>
         </View>
 
-        <RodapePagina
-          numero={numero}
-          pagina={totalPaginas}
-          totalPaginas={totalPaginas}
-        />
+        <RodapePagina numero={numero} pagina={10} totalPaginas={totalPaginas} />
       </Page>
     </Document>
   );

@@ -5,15 +5,22 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        night: "#0E1B2C", // fundo base — céu antes do amanhecer
-        dusk: "#14263B", // fundo elevado — cards, painéis
-        duskline: "#233A54", // bordas sutis sobre o fundo escuro
-        sun: "#F5A623", // acento primário — sol, CTAs
-        sunlight: "#FFD27A", // sol claro — hover, glow
-        ember: "#E4632F", // acento secundário — telha, calor
+        night: "#052137", // fundo real da marca — azul-marinho profundo
+        dusk: "#0C2E4A", // fundo elevado — cards, painéis
+        duskline: "#1F3F5C", // bordas sutis sobre o fundo escuro
+        sun: "#F7C948", // dourado real da marca — CTAs, destaques
+        sunlight: "#FFE18C", // dourado claro — hover, glow
+        ember: "#E4632F", // acento secundário — calor
         sky: "#67D8C4", // dados positivos — economia, geração
-        paper: "#F7F3EA", // texto claro sobre fundo escuro
-        graphite: "#1C1C1A", // texto escuro sobre fundo claro
+        paper: "#F5F3EC", // texto claro sobre fundo escuro
+        graphite: "#1C1C1A", // texto escuro sobre fundo claro (usado no PDF)
+
+        // Tema claro — mantido para a proposta em PDF (documento impresso
+        // precisa de fundo branco), não usado no site.
+        ivory: "#FFFFFF",
+        cloud: "#F6F4EF",
+        borderlight: "#E5E1D6",
+        graphitesoft: "#5B5B57",
       },
       fontFamily: {
         display: ["var(--font-display)", "sans-serif"],
@@ -22,7 +29,7 @@ const config: Config = {
       },
       backgroundImage: {
         "sun-glow":
-          "radial-gradient(60% 60% at 50% 0%, rgba(245,166,35,0.18) 0%, rgba(14,27,44,0) 70%)",
+          "radial-gradient(60% 60% at 50% 0%, rgba(247,201,72,0.18) 0%, rgba(5,33,55,0) 70%)",
       },
       keyframes: {
         rise: {

@@ -84,7 +84,7 @@ export function SimuladorWizard() {
 
   return (
     <div>
-      <ol className="mb-8 flex gap-2 text-xs text-paper/40">
+      <ol className="mb-8 flex gap-2 text-xs text-graphite/40">
         <li className={passo === 1 ? "text-sun" : ""}>1. Consumo</li>
         <span>·</span>
         <li className={passo === 2 ? "text-sun" : ""}>2. Contato</li>
@@ -116,7 +116,7 @@ export function SimuladorWizard() {
                   className={`rounded-full border px-4 py-2 text-sm transition ${
                     tecnicos.grupoTarifario === grupo
                       ? "border-sun bg-sun/10 text-sun"
-                      : "border-duskline text-paper/60 hover:border-paper/30"
+                      : "border-borderlight text-graphitesoft hover:border-graphite/30"
                   }`}
                 >
                   Grupo {grupo} {grupo === "B" ? "(residencial/comercial)" : "(alta tensão)"}
@@ -152,7 +152,7 @@ export function SimuladorWizard() {
               onChange={(e) => setTecnicos({ ...tecnicos, consumoMedioKwh: e.target.value })}
               className={inputClasse}
             />
-            <p className="mt-1 text-xs text-paper/40">
+            <p className="mt-1 text-xs text-graphite/40">
               Está na sua fatura de energia, em kWh.
             </p>
           </Campo>
@@ -215,7 +215,7 @@ export function SimuladorWizard() {
             <button
               type="button"
               onClick={() => setPasso(1)}
-              className="text-sm text-paper/50 hover:text-paper"
+              className="text-sm text-graphitesoft hover:text-graphite"
             >
               Voltar
             </button>
@@ -227,9 +227,9 @@ export function SimuladorWizard() {
 }
 
 const inputClasse =
-  "w-full rounded-lg border border-duskline bg-night px-4 py-3 text-paper outline-none transition focus:border-sun";
+  "w-full rounded-lg border border-borderlight bg-ivory px-4 py-3 text-graphite outline-none transition focus:border-sun";
 const botaoClasse =
-  "rounded-full bg-sun px-6 py-3 text-sm font-semibold text-night transition hover:bg-sunlight disabled:opacity-50";
+  "rounded-full bg-sun px-6 py-3 text-sm font-semibold text-graphite transition hover:bg-sunlight disabled:opacity-50";
 
 function Campo({
   label,
@@ -242,7 +242,7 @@ function Campo({
 }) {
   return (
     <div>
-      <label htmlFor={htmlFor} className="mb-2 block text-sm text-paper/70">
+      <label htmlFor={htmlFor} className="mb-2 block text-sm text-graphitesoft">
         {label}
       </label>
       {children}

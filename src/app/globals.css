@@ -4,7 +4,7 @@
 
 @layer base {
   * {
-    @apply border-duskline;
+    @apply border-borderlight;
   }
 
   html {
@@ -12,7 +12,7 @@
   }
 
   ::selection {
-    @apply bg-sun/30 text-paper;
+    @apply bg-sun/30 text-graphite;
   }
 
   :focus-visible {
