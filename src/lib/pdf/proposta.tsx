@@ -122,10 +122,9 @@ export function PropostaPDF({ simulacao, lead }: PropostaPDFProps) {
   const tipoEstrutura = simulacao.tipoEstrutura ?? "Cerâmico";
   const anoAtual = hoje.getFullYear();
 
+  const itensExistentes = simulacao.itensProposta as unknown as ItemProposta[] | null;
   const itens: ItemProposta[] =
-    (simulacao.itensProposta as ItemProposta[] | null) && (simulacao.itensProposta as ItemProposta[]).length > 0
-      ? (simulacao.itensProposta as ItemProposta[])
-      : itensPadrao(simulacao);
+    itensExistentes && itensExistentes.length > 0 ? itensExistentes : itensPadrao(simulacao);
   const totalItens = itens.reduce((soma, item) => soma + item.quantidade * item.valorUnitario, 0);
 
   const hspMensal = (simulacao.hspMensal as number[] | null) ?? new Array(12).fill(simulacao.hspMedioAnual);
