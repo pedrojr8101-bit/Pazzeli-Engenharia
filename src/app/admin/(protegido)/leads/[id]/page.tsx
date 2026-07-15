@@ -104,6 +104,17 @@ export default async function DetalheLeadPage({ params }: { params: { id: string
                   investimentoEstimado={sim.investimentoEstimado}
                   investimentoFinalAtual={sim.investimentoFinal}
                   observacoesAtuais={sim.observacoesProposta}
+                  itensAtuais={
+                    (sim.itensProposta as {
+                      descricao: string;
+                      unidade: string;
+                      quantidade: number;
+                      valorUnitario: number;
+                    }[] | null) ?? null
+                  }
+                  tipoEstruturaAtual={sim.tipoEstrutura}
+                  clienteCpfAtual={sim.clienteCpf}
+                  clienteEnderecoAtual={sim.clienteEnderecoCompleto}
                 />
               </div>
             </div>

@@ -4,9 +4,20 @@ import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
+const itemSchema = z.object({
+  descricao: z.string().min(1),
+  unidade: z.string().min(1),
+  quantidade: z.coerce.number().positive(),
+  valorUnitario: z.coerce.number().nonnegative(),
+});
+
 const schema = z.object({
   investimentoFinal: z.coerce.number().positive().nullable().optional(),
   observacoesProposta: z.string().max(2000).nullable().optional(),
+  itensProposta: z.array(itemSchema).nullable().optional(),
+  tipoEstrutura: z.string().max(60).nullable().optional(),
+  clienteCpf: z.string().max(20).nullable().optional(),
+  clienteEnderecoCompleto: z.string().max(300).nullable().optional(),
 });
 
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {

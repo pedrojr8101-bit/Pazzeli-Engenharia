@@ -10,9 +10,14 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   return (
     <div className="min-h-screen bg-night">
       <header className="mx-auto flex max-w-5xl items-center justify-between px-6 py-6">
-        <Link href="/admin" className="font-display text-lg font-semibold text-paper">
-          Painel · Leads
-        </Link>
+        <nav className="flex items-center gap-6">
+          <Link href="/admin" className="font-display text-lg font-semibold text-paper">
+            Dashboard
+          </Link>
+          <Link href="/admin/clientes" className="text-sm text-paper/60 hover:text-paper">
+            Clientes fechados
+          </Link>
+        </nav>
         <div className="flex items-center gap-4 text-sm text-paper/60">
           {sessao && <span>{sessao.nome}</span>}
           <LogoutButton />

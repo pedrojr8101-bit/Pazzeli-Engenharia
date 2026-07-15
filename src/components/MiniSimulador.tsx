@@ -61,13 +61,27 @@ export function MiniSimulador() {
         </div>
       )}
 
-      <Link
-        href="/simulador"
-        className="mt-7 inline-flex items-center gap-2 rounded-full bg-sun px-6 py-3 text-sm font-semibold text-night transition hover:bg-sunlight"
-      >
-        Simular com precisão para o meu endereço
-        <span aria-hidden>→</span>
-      </Link>
+      <div className="mt-7 flex flex-wrap items-center gap-3">
+        <Link
+          href="/simulador"
+          className="inline-flex items-center gap-2 rounded-full bg-sun px-6 py-3 text-sm font-semibold text-night transition hover:bg-sunlight"
+        >
+          Simular com precisão para o meu endereço
+          <span aria-hidden>→</span>
+        </Link>
+        {process.env.NEXT_PUBLIC_EMPRESA_WHATSAPP && (
+          <a
+            href={`https://wa.me/${process.env.NEXT_PUBLIC_EMPRESA_WHATSAPP}?text=${encodeURIComponent(
+              "Olá! Vim pelo site e gostaria de solicitar um orçamento. Qual o próximo passo?"
+            )}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-full border border-duskline px-6 py-3 text-sm font-semibold text-paper/80 transition hover:border-sun hover:text-sun"
+          >
+            Falar no WhatsApp
+          </a>
+        )}
+      </div>
       <p className="mt-3 text-xs text-paper/40">
         Estimativa preliminar com médias nacionais. O cálculo completo considera a
         irradiação real do seu CEP e a Lei 14.300.

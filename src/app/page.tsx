@@ -3,6 +3,7 @@ import { Diferenciais } from "@/components/Diferenciais";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { Hero } from "@/components/Hero";
+import { BotaoWhatsApp } from "@/components/BotaoWhatsApp";
 
 export default function HomePage() {
   return (
@@ -14,6 +15,7 @@ export default function HomePage() {
         <Diferenciais />
       </main>
       <Footer />
+      <BotaoWhatsApp />
     </>
   );
 }

@@ -104,6 +104,13 @@ model Simulacao {
   // Quando presentes, prevalecem sobre os valores calculados na proposta.
   investimentoFinal   Float? // preço negociado, se diferente da estimativa
   observacoesProposta String? // condições, desconto, observações do fechamento
+  itensProposta       Json? // lista de itens do kit: [{descricao, unidade, quantidade, valorUnitario}]
+  tipoEstrutura       String? // Cerâmico, Metálico, Fibrocimento, Laje, Solo...
+
+  // Dados do cliente para o termo de aceite (coletados na hora do fechamento,
+  // não no simulador público, para não adicionar fricção ao formulário do site).
+  clienteCpf               String?
+  clienteEnderecoCompleto  String?
 
   createdAt DateTime @default(now())
 

@@ -133,18 +133,44 @@ explícito para o usuário final.
 ## O que já existe vs. o que falta
 
 ✅ Site institucional · ✅ Simulador técnico · ✅ Captura de lead ·
-✅ Área admin com login · ✅ Proposta em PDF
+✅ Área admin com login · ✅ Proposta em PDF completa (12 páginas, projeção
+financeira de 25 anos, TIR/VPL/payback, financiamento) · ✅ Dashboard visual ·
+✅ Busca/filtro de leads · ✅ Página de clientes fechados
 
 **Ainda não construído:**
 
+- **Redesign visual completo do site** (identidade visual da Pazzeli de
+  verdade) — combinado deixar para depois do fechamento do primeiro cliente.
 - **Área do cliente**: login por e-mail para o lead ver o histórico das
   próprias simulações (hoje só o admin vê).
-- **Múltiplos admins com papéis diferentes** (hoje todo AdminUser tem acesso
-  total — não tem distinção de permissão).
-- **Filtro/busca na lista de leads** do dashboard (hoje é uma lista simples,
-  sem paginação — ok para o volume inicial, mas vale revisitar com escala).
-- **Tarifa/custo por kWp configurável por empresa** direto pela área admin
-  (hoje só via variável de ambiente).
+- **Configuração da empresa pela área admin** — hoje o conteúdo institucional
+  da proposta (sobre, missão/visão, financiamento, fotos de projetos) fica em
+  `src/lib/empresa-config.ts`, editado direto no código. Uma tela de
+  configurações no admin é um bom próximo passo quando fizer sentido.
+- **Fotos de projetos executados** — página da proposta só aparece quando
+  `empresaConfig.fotosProjetos` tiver pelo menos uma foto.
+
+## Proposta em PDF completa
+
+A partir da v6, a proposta em PDF ganhou 12 páginas: capa, sobre a empresa,
+missão/visão/valores, dimensionamento técnico, gráfico de geração mensal,
+lista de produtos (itens editáveis por negócio), pagamento e financiamento
+(tabela SAC), retorno do investimento (tabela de 25 anos comparando com
+CDB/poupança), TIR/VPL/payback + impacto ambiental, projetos executados
+(opcional), termos e condições, e termo de aceite.
+
+**Antes de usar com clientes de verdade, edite `src/lib/empresa-config.ts`**
+com os dados reais da empresa: sobre, missão/visão/valores, parceiros,
+suporte/garantia, opções de financiamento (taxas mudam com frequência — não
+use os valores de exemplo) e, se quiser, fotos de projetos executados.
+
+As premissas financeiras (inflação da tarifa, degradação dos painéis, taxa de
+CDI/poupança usada na comparação, TMA do VPL, fatores de impacto ambiental)
+também ficam nesse arquivo, na constante `premissasFinanceiras`. Um ponto de
+atenção: a taxa de CDI usada ali é uma **média histórica de longo prazo**, não
+a Selic do momento — usar a taxa atual composta por 25 anos seguidos gera
+comparações irreais (testamos e o valor final do CDB passava de R$ 1 milhão
+para um investimento de R$ 16 mil, o que não é um bom ponto de comparação).
 
 ## Nota sobre este ambiente de build
 

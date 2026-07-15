@@ -1,6 +1,7 @@
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { SimuladorWizard } from "@/components/SimuladorWizard";
+import { BotaoWhatsApp } from "@/components/BotaoWhatsApp";
 
 export default function SimuladorPage() {
   return (
@@ -20,6 +21,7 @@ export default function SimuladorPage() {
         </div>
       </main>
       <Footer />
+      <BotaoWhatsApp />
     </>
   );
 }
