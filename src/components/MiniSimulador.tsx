@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { empresaConfig } from "@/lib/empresa-config";
 
 // Constantes de referência nacional — só para a prévia da hero. O cálculo
 // preciso (por CEP, com irradiação real e regras da Lei 14.300) acontece na
@@ -69,9 +70,9 @@ export function MiniSimulador() {
           Simular com precisão para o meu endereço
           <span aria-hidden>→</span>
         </Link>
-        {process.env.NEXT_PUBLIC_EMPRESA_WHATSAPP && (
+        {empresaConfig.whatsapp && (
           <a
-            href={`https://wa.me/${process.env.NEXT_PUBLIC_EMPRESA_WHATSAPP}?text=${encodeURIComponent(
+            href={`https://wa.me/${empresaConfig.whatsapp}?text=${encodeURIComponent(
               "Olá! Vim pelo site e gostaria de solicitar um orçamento. Qual o próximo passo?"
             )}`}
             target="_blank"

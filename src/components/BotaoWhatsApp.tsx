@@ -1,8 +1,10 @@
+import { empresaConfig } from "@/lib/empresa-config";
+
 const MENSAGEM_PADRAO =
   "Olá! Vim pelo site e gostaria de solicitar um orçamento. Qual o próximo passo?";
 
 export function BotaoWhatsApp() {
-  const numero = process.env.NEXT_PUBLIC_EMPRESA_WHATSAPP;
+  const numero = empresaConfig.whatsapp;
   if (!numero) return null;
 
   const link = `https://wa.me/${numero}?text=${encodeURIComponent(MENSAGEM_PADRAO)}`;

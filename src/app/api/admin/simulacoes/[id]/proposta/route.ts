@@ -18,13 +18,7 @@ export async function GET(_request: Request, { params }: { params: { id: string 
 
   const lead = simulacao.lead;
 
-  const empresa = {
-    nome: process.env.NEXT_PUBLIC_EMPRESA_NOME || "Sua Empresa Solar",
-    telefone: process.env.NEXT_PUBLIC_EMPRESA_TELEFONE,
-    email: process.env.NEXT_PUBLIC_EMPRESA_EMAIL,
-  };
-
-  const buffer = await renderToBuffer(PropostaPDF({ simulacao, lead, empresa }));
+  const buffer = await renderToBuffer(PropostaPDF({ simulacao, lead }));
 
   return new NextResponse(new Uint8Array(buffer), {
     headers: {

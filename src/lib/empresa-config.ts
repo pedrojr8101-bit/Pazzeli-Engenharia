@@ -3,36 +3,39 @@
 // Edite os valores abaixo com as informações reais da empresa.
 
 export const empresaConfig = {
-  nome: process.env.NEXT_PUBLIC_EMPRESA_NOME || "Sua Empresa Solar",
-  cnpj: "00.000.000/0001-00",
-  telefone: process.env.NEXT_PUBLIC_EMPRESA_TELEFONE || "",
-  whatsapp: process.env.NEXT_PUBLIC_EMPRESA_WHATSAPP || "", // só números, com DDI: 5591999999999
-  email: process.env.NEXT_PUBLIC_EMPRESA_EMAIL || "",
-  site: process.env.NEXT_PUBLIC_EMPRESA_SITE || "",
-  logoUrl: process.env.NEXT_PUBLIC_EMPRESA_LOGO_URL || "", // URL pública de uma imagem (deixe vazio se não tiver ainda)
+  nome: process.env.NEXT_PUBLIC_EMPRESA_NOME || "Pazelli Energia Solar",
+  cnpj: "34.588.201/0001-73",
+  telefone: process.env.NEXT_PUBLIC_EMPRESA_TELEFONE || "(91) 99129-4123",
+  whatsapp: process.env.NEXT_PUBLIC_EMPRESA_WHATSAPP || "5591991294123",
+  email: process.env.NEXT_PUBLIC_EMPRESA_EMAIL || "josemario@pazelliengenharia.com.br",
+  site: process.env.NEXT_PUBLIC_EMPRESA_SITE || "", // pazelliengenharia.com.br retornou 404 na última checagem — confirme antes de usar
+  logoUrl: process.env.NEXT_PUBLIC_EMPRESA_LOGO_URL || "", // cole aqui a URL de uma imagem do logo, se tiver uma hospedada
 
   endereco: {
-    rua: "Rua de exemplo, 000",
-    bairro: "Bairro",
+    rua: "Av. Conselheiro Furtado, 2391 — Edif. Belém Metropolitan, Sala 1009",
+    bairro: "Batista Campos",
     cidade: "Belém",
     uf: "PA",
-    cep: "00000-000",
+    cep: "66035-350",
   },
 
-  anosExperiencia: 3,
+  anosExperiencia: 6, // fundada em 20/08/2019, segundo o CNPJ
 
+  // Fonte: descrição usada pela própria empresa no Reclame Aqui.
   sobre:
-    "Somos uma empresa especializada em soluções de energia solar, com engenharia própria " +
-    "e equipe técnica dedicada do início ao fim de cada projeto.",
+    "Somos especialistas no desenvolvimento de projetos de energia solar, trazendo sempre " +
+    "uma solução completa com amplo rigor técnico para garantir a satisfação do cliente.",
 
+  // TODO — não encontrei esse conteúdo em fontes públicas confiáveis.
+  // Copie do Instagram/Facebook da empresa ou escreva algo novo antes de usar em proposta real.
   missao: "Ser referência em energia solar pela excelência técnica e confiança.",
   visao: "Oferecer soluções em energia solar com qualidade, economia e sustentabilidade.",
   valores: ["Ética", "Qualidade", "Compromisso", "Inovação", "Respeito ao cliente"],
 
-  // Nomes de parceiros/fabricantes que aparecem na proposta (texto simples —
-  // adicione logos depois se quiser, via URL).
+  // TODO — substitua pelos fabricantes/parceiros reais que a Pazelli utiliza.
   parceiros: ["WEG", "Fronius", "Growatt"],
 
+  // TODO — confirme os termos reais de suporte/garantia da empresa.
   suporte:
     "Fornecemos suporte técnico durante os primeiros 12 meses de utilização do sistema, " +
     "incluindo visitas para verificação, limpeza e treinamento. Após esse período, o suporte " +
@@ -52,8 +55,8 @@ export const empresaConfig = {
   descontoAVistaPercentual: 0.03,
   validadePropostaDias: 15,
 
-  // Opções de financiamento oferecidas na proposta — AJUSTE com condições
-  // reais antes de enviar propostas de verdade, taxas mudam com frequência.
+  // TODO — condições de financiamento de exemplo. AJUSTE com taxas reais
+  // antes de enviar propostas de verdade, taxas mudam com frequência.
   financiamento: [
     {
       banco: "Banco A",

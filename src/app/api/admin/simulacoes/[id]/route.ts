@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -29,10 +30,19 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     );
   }
 
+  // Campos Json? do Prisma não aceitam `null` puro para limpar o valor —
+  // é preciso usar o marcador Prisma.JsonNull. Tratamos isso à parte.
+  const { itensProposta, ...resto } = parsed.data;
+
   try {
     const simulacao = await prisma.simulacao.update({
       where: { id: params.id },
-      data: parsed.data,
+      data: {
+        ...resto,
+        ...(itensProposta !== undefined
+          ? { itensProposta: itensProposta === null ? Prisma.JsonNull : itensProposta }
+          : {}),
+      },
     });
     return NextResponse.json({ simulacao });
   } catch {

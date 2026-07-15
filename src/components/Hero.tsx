@@ -1,15 +1,14 @@
 import { MiniSimulador } from "./MiniSimulador";
 import { SunArc } from "./SunArc";
+import { empresaConfig } from "@/lib/empresa-config";
 
 export function Hero() {
-  const nomeEmpresa = process.env.NEXT_PUBLIC_EMPRESA_NOME || "Sua Empresa Solar";
-
   return (
     <section className="relative overflow-hidden bg-sun-glow">
       <div className="mx-auto grid max-w-6xl gap-12 px-6 pb-20 pt-16 sm:pt-24 lg:grid-cols-2 lg:items-center lg:pb-28">
         <div>
           <p className="mb-4 font-mono text-xs uppercase tracking-[0.2em] text-sun">
-            {nomeEmpresa}
+            {empresaConfig.nome}
           </p>
           <h1 className="font-display text-4xl font-semibold leading-[1.05] text-paper sm:text-5xl lg:text-[3.4rem]">
             Todo dia, o sol paga

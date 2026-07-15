@@ -112,7 +112,6 @@ function itensPadrao(simulacao: Simulacao): ItemProposta[] {
 interface PropostaPDFProps {
   simulacao: Simulacao;
   lead: Lead;
-  empresa: { nome: string; telefone?: string | null; email?: string | null };
 }
 
 export function PropostaPDF({ simulacao, lead }: PropostaPDFProps) {

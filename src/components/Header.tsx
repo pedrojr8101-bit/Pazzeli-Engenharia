@@ -1,12 +1,11 @@
 import Link from "next/link";
+import { empresaConfig } from "@/lib/empresa-config";
 
 export function Header() {
-  const nomeEmpresa = process.env.NEXT_PUBLIC_EMPRESA_NOME || "Sua Empresa Solar";
-
   return (
     <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
       <Link href="/" className="font-display text-lg font-semibold text-paper">
-        {nomeEmpresa}
+        {empresaConfig.nome}
       </Link>
       <Link
         href="/simulador"

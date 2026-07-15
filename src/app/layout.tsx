@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Bricolage_Grotesque, IBM_Plex_Mono, Inter } from "next/font/google";
 import "./globals.css";
+import { empresaConfig } from "@/lib/empresa-config";
 
 const display = Bricolage_Grotesque({
   subsets: ["latin"],
@@ -20,10 +21,8 @@ const mono = IBM_Plex_Mono({
   weight: ["400", "500", "600"],
 });
 
-const nomeEmpresa = process.env.NEXT_PUBLIC_EMPRESA_NOME || "Sua Empresa Solar";
-
 export const metadata: Metadata = {
-  title: `${nomeEmpresa} — Energia solar sob medida`,
+  title: `${empresaConfig.nome} — Energia solar sob medida`,
   description:
     "Simule em minutos o tamanho do sistema fotovoltaico ideal para o seu consumo, já considerando a Lei 14.300, e receba um contato personalizado.",
 };
