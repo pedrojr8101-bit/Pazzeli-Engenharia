@@ -7,7 +7,9 @@ import type { GrupoTarifario, TipoLigacao } from "./types";
  * 2045 (direito adquirido, não tratado aqui).
  *
  * Fonte: cronograma oficial ANEEL — 15% (2023) subindo 15 p.p. ao ano até
- * 90% (2028) e 100% a partir de 2029.
+ * 90% (2028). A partir de 2029 a regra oficial prevê valoração pela ANEEL;
+ * seguimos a MESMA premissa da ferramenta de propostas da Pazelli:
+ * continuidade do pagamento de 90% do Fio B após 2028.
  */
 const CRONOGRAMA_FIO_B: Record<number, number> = {
   2023: 0.15,
@@ -18,16 +20,32 @@ const CRONOGRAMA_FIO_B: Record<number, number> = {
   2028: 0.9,
 };
 
+export const FIO_B_PERCENTUAL_APOS_2028 = 0.9;
+
 export function percentualFioB(ano: number): number {
   if (ano <= 2022) return 0; // direito adquirido — fora do escopo deste MVP
-  if (ano >= 2029) return 1;
-  return CRONOGRAMA_FIO_B[ano] ?? 1;
+  if (ano >= 2029) return FIO_B_PERCENTUAL_APOS_2028;
+  return CRONOGRAMA_FIO_B[ano] ?? FIO_B_PERCENTUAL_APOS_2028;
 }
 
-// O Fio B é um componente da TUSD. Este percentual (quanto a TUSD representa
-// da tarifa total) é uma média de mercado — o valor real varia por
-// concessionária e deveria ser configurado por empresa numa fase futura
-// (área admin), com a tarifa homologada real de cada distribuidora.
+/**
+ * Valor efetivo descontado da energia compensada, em R$/kWh (ano-base 2026),
+ * ANTES de aplicar o percentual do cronograma acima.
+ *
+ * CALIBRADO por engenharia reversa da proposta oficial da Pazelli
+ * (P262053 / MARIO_650KWH): na prática a ferramenta oficial desconta a TUSD
+ * inteira sobre a energia compensada, não só o Fio B "de livro" da
+ * Equatorial PA (~R$ 0,25–0,30/kWh). Manter 0,62 reproduz as propostas
+ * oficiais com erro < 5%; reduzir o valor deixa a proposta MAIS atrativa.
+ */
+export const FIO_B_EFETIVO_RS_KWH = 0.62;
+
+/** Correção anual do Fio B efetivo (calibrado: 3,5% a.a., abaixo da tarifa). */
+export const INFLACAO_FIO_B = 0.035;
+
+// Mantido apenas para exibição/premissas em telas antigas — o cálculo
+// financeiro agora usa FIO_B_EFETIVO_RS_KWH (acima), calibrado na proposta
+// oficial. Este percentual não entra mais na conta.
 export const TUSD_PARTICIPACAO_NA_TARIFA = 0.4;
 
 // Fator de simultaneidade assumido por padrão, na ausência da curva de carga
