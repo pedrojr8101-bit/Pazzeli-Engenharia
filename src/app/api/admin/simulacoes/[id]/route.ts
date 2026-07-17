@@ -19,6 +19,7 @@ const schema = z.object({
   tipoEstrutura: z.string().max(60).nullable().optional(),
   clienteCpf: z.string().max(20).nullable().optional(),
   clienteEnderecoCompleto: z.string().max(300).nullable().optional(),
+  margemLucroPercentual: z.coerce.number().min(0).max(1000).nullable().optional(),
 });
 
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {

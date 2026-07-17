@@ -3,7 +3,7 @@ import { COOKIE_SESSAO, verificarTokenSessao } from "@/lib/auth";
 import { COOKIE_SESSAO_CLIENTE, verificarTokenSessaoCliente } from "@/lib/auth-cliente";
 
 const ROTAS_PUBLICAS_ADMIN = ["/admin/login", "/api/admin/login", "/api/admin/setup"];
-const ROTAS_PUBLICAS_CLIENTE = ["/cliente/login", "/api/cliente/login"];
+const ROTAS_PUBLICAS_CLIENTE = ["/cliente/login", "/api/cliente/login", "/cliente/demo"];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;

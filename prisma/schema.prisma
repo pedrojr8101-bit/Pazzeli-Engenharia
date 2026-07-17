@@ -111,6 +111,7 @@ model Simulacao {
   observacoesProposta String? // condições, desconto, observações do fechamento
   itensProposta       Json? // lista de itens do kit: [{descricao, unidade, quantidade, valorUnitario}]
   tipoEstrutura       String? // Cerâmico, Metálico, Fibrocimento, Laje, Solo...
+  margemLucroPercentual Float? // margem aplicada sobre o custo dos itens, só de apoio pro cálculo do preço
 
   // Dados do cliente para o termo de aceite (coletados na hora do fechamento,
   // não no simulador público, para não adicionar fricção ao formulário do site).

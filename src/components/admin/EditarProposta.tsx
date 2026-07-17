@@ -23,6 +23,7 @@ interface EditarPropostaProps {
   tipoEstruturaAtual: string | null;
   clienteCpfAtual: string | null;
   clienteEnderecoAtual: string | null;
+  margemLucroAtual: number | null;
 }
 
 const TIPOS_ESTRUTURA = ["Cerâmico", "Metálico", "Fibrocimento", "Laje", "Solo"];
@@ -40,6 +41,7 @@ export function EditarProposta({
   tipoEstruturaAtual,
   clienteCpfAtual,
   clienteEnderecoAtual,
+  margemLucroAtual,
 }: EditarPropostaProps) {
   const router = useRouter();
   const [aberto, setAberto] = useState(false);
@@ -53,6 +55,9 @@ export function EditarProposta({
   const [tipoEstrutura, setTipoEstrutura] = useState(tipoEstruturaAtual ?? TIPOS_ESTRUTURA[0]);
   const [clienteCpf, setClienteCpf] = useState(clienteCpfAtual ?? "");
   const [clienteEndereco, setClienteEndereco] = useState(clienteEnderecoAtual ?? "");
+  const [margemLucro, setMargemLucro] = useState(
+    margemLucroAtual !== null && margemLucroAtual !== undefined ? String(margemLucroAtual) : ""
+  );
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
 
@@ -90,6 +95,7 @@ export function EditarProposta({
           tipoEstrutura,
           clienteCpf: clienteCpf.trim() || null,
           clienteEnderecoCompleto: clienteEndereco.trim() || null,
+          margemLucroPercentual: margemLucro ? Number(margemLucro) : null,
         }),
       });
 
@@ -228,8 +234,46 @@ export function EditarProposta({
           ))}
         </div>
         {totalItens > 0 && (
-          <p className="mt-2 text-xs text-paper/40">Total dos itens: {moeda(totalItens)}</p>
+          <p className="mt-2 text-xs text-paper/40">Total dos itens (custo): {moeda(totalItens)}</p>
         )}
+
+        <div className="mt-4 flex flex-wrap items-end gap-3 rounded-lg border border-duskline bg-night/40 p-3">
+          <div>
+            <label htmlFor={`margem-${simulacaoId}`} className="mb-1 block text-xs text-paper/50">
+              Margem de lucro (%)
+            </label>
+            <input
+              id={`margem-${simulacaoId}`}
+              inputMode="decimal"
+              value={margemLucro}
+              onChange={(e) => setMargemLucro(e.target.value.replace(/[^\d.,]/g, ""))}
+              placeholder="ex: 30"
+              className="w-24 rounded-lg border border-duskline bg-dusk px-2 py-1.5 text-sm text-paper outline-none focus:border-sun"
+            />
+          </div>
+
+          {totalItens > 0 && margemLucro && (
+            <>
+              <div>
+                <p className="text-xs text-paper/50">Preço sugerido</p>
+                <p className="font-mono text-sm text-sky">
+                  {moeda(totalItens * (1 + Number(margemLucro.replace(",", ".")) / 100))}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() =>
+                  setInvestimentoFinal(
+                    (totalItens * (1 + Number(margemLucro.replace(",", ".")) / 100)).toFixed(2)
+                  )
+                }
+                className="rounded-full border border-sun/50 px-3 py-1.5 text-xs text-sun hover:bg-sun/10"
+              >
+                Usar como preço final
+              </button>
+            </>
+          )}
+        </div>
       </div>
 
       <div>

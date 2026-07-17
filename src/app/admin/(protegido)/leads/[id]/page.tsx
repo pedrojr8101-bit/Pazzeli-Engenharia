@@ -120,6 +120,7 @@ export default async function DetalheLeadPage({ params }: { params: { id: string
                   tipoEstruturaAtual={sim.tipoEstrutura}
                   clienteCpfAtual={sim.clienteCpf}
                   clienteEnderecoAtual={sim.clienteEnderecoCompleto}
+                  margemLucroAtual={sim.margemLucroPercentual}
                 />
               </div>
             </div>
