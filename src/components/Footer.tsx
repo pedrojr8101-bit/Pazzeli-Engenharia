@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { empresaConfig } from "@/lib/empresa-config";
 
 export function Footer() {
@@ -17,6 +18,11 @@ export function Footer() {
               {email && <p>{email}</p>}
               {instagram && <p>@{instagram}</p>}
             </div>
+          </div>
+          <div>
+            <Link href="/cliente/login" className="text-sm text-graphitesoft hover:text-sun">
+              Já é cliente? Acompanhe sua usina →
+            </Link>
           </div>
         </div>
         <p className="mt-10 border-t border-borderlight pt-6 text-xs text-graphite/40">

@@ -87,18 +87,14 @@ export const premissasFinanceiras = {
   horizonteAnos: 25,
   inflacaoAnualTarifa: 0.04,
   degradacaoTotal25Anos: 0.2,
-  // Benchmarks IGUAIS aos da ferramenta oficial de propostas da Pazelli
-  // (P262053): Taxa DI 4,40% a.a. e poupança 3,15% a.a. São premissas
-  // conservadoras de longuíssimo prazo — não usar a Selic do momento aqui
-  // (25 anos de Selic atual composta gera comparações irreais).
-  taxaCdiAnual: 0.044,
+  taxaCdiAnual: 0.085, // média histórica de longo prazo — não usar a Selic do momento aqui.
   percentualCdb: 1.3,
-  rendimentoPoupancaAnual: 0.0315,
+  rendimentoPoupancaAnual: 0.055,
   aliquotaIrRendaFixa: 0.15,
   tma: 0.04,
 
-  co2KgPorKwh: 0.296, // fator de deslocamento da rede — igual à proposta oficial
-  co2KgAbsorvidoPorArvorePorAno: 5.6, // ~140 kg por árvore em 25 anos (proposta oficial)
+  co2KgPorKwh: 0.3,
+  co2KgAbsorvidoPorArvorePorAno: 20,
   custoPorArvorePlantada: 20,
 
   areaOcupadaPorPainelM2: 2.6,

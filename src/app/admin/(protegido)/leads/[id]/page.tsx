@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { StatusSelect } from "@/components/admin/StatusSelect";
 import { EditarProposta } from "@/components/admin/EditarProposta";
+import { VincularSolarZ } from "@/components/admin/VincularSolarZ";
 
 export const dynamic = "force-dynamic";
 
@@ -35,6 +36,10 @@ export default async function DetalheLeadPage({ params }: { params: { id: string
           </p>
         </div>
         <StatusSelect leadId={lead.id} statusAtual={lead.status} />
+      </div>
+
+      <div className="mt-6">
+        <VincularSolarZ leadId={lead.id} emailLead={lead.email} plantIdAtual={lead.solarzPlantId} />
       </div>
 
       <h2 className="mb-4 mt-10 font-display text-lg font-semibold text-paper">

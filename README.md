@@ -105,34 +105,77 @@ atual composta por 25 anos seguidos gera comparações irreais (testamos: o
 valor final do CDB passava de R$ 1 milhão para um investimento de R$ 16
 mil). Ajuste com cautela se for atualizar esse número.
 
-## Estrutura
+## Área do cliente e monitoramento (SolarZ)
+
+Clientes que já fecharam negócio podem acompanhar a produção de energia da
+própria usina em `/cliente` (login separado do admin, em `/cliente/login`).
+Os dados vêm da [API da SolarZ](https://app.solarz.com.br/v3/api-docs/seller-open-api)
+(monitoramento com +100 inversores compatíveis), consultada no servidor —
+as credenciais da SolarZ nunca chegam ao navegador do cliente.
+
+**Como liberar o acesso de um cliente:**
+1. No admin, abra o lead (`/admin/leads/[id]`).
+2. Na seção "Monitoramento SolarZ", busque a usina pelo e-mail ou CPF do
+   cliente (a busca consulta a SolarZ diretamente).
+3. Selecione a usina encontrada, defina uma senha de acesso, e clique em
+   "Vincular e liberar acesso".
+4. Passe o e-mail e a senha pro cliente (WhatsApp, por exemplo) — ele já
+   pode entrar em `/cliente/login`.
+
+O dashboard do cliente mostra: status da usina (online/offline), potência
+instantânea, geração de hoje/últimos 30 dias (comparado com o esperado),
+geração total histórica, e um gráfico diário dos últimos 30 dias.
+
+**Pensando no futuro app**: o login (`/api/cliente/login`) devolve o token
+de sessão também no corpo da resposta (além do cookie usado pelo site), e
+todas as rotas de `/api/cliente/*` aceitam tanto o cookie quanto um header
+`Authorization: Bearer <token>`. Um app nativo pode reusar exatamente essas
+mesmas rotas — só precisa guardar o token com segurança e mandar esse
+header nas chamadas.
+
+Variáveis necessárias (ver `.env.example`): `SOLARZ_USUARIO`, `SOLARZ_SENHA`
+(credenciais da conta raiz do integrador na SolarZ) e `CLIENTE_JWT_SECRET`.
+
+
 
 ```
 src/
   app/
     page.tsx                     site institucional (hero + dor + diferenciais + serviços + como funciona + depoimentos + CTA)
     simulador/page.tsx           wizard de simulação (2 passos + resultado)
+    cliente/
+      login/page.tsx             login do cliente (rota pública)
+      (protegido)/
+        layout.tsx                 header + botão sair
+        page.tsx                   dashboard de monitoramento (produção da usina via SolarZ)
     admin/
       login/page.tsx             login (rota pública)
       (protegido)/
         layout.tsx                nav (dashboard/clientes) + botão sair
         page.tsx                  dashboard — stats + gráfico + lista de leads (busca/filtro)
-        leads/[id]/page.tsx       detalhe do lead + edição de proposta + histórico de simulações
+        leads/[id]/page.tsx       detalhe do lead + vínculo SolarZ + edição de proposta + histórico de simulações
         clientes/page.tsx         clientes fechados (stats + grade de cards)
     api/
       simular/route.ts            roda o cálculo e grava Lead + Simulacao no banco
+      cliente/
+        login/route.ts, logout/route.ts
+        producao/route.ts          consulta a SolarZ e devolve os dados da usina do cliente logado
       admin/
         login/route.ts, logout/route.ts, setup/route.ts
         leads/route.ts            lista de leads (GET)
         leads/[id]/route.ts       detalhe (GET) + mudar status (PATCH)
+        leads/[id]/solarz/route.ts         busca (GET) e vincula (POST) a usina SolarZ ao lead
         simulacoes/[id]/route.ts           atualiza ajustes comerciais da proposta (PATCH)
         simulacoes/[id]/proposta/route.ts   gera o PDF da proposta completa
-  middleware.ts                  protege /admin e /api/admin (exceto /login e /setup)
+  middleware.ts                  protege /admin, /api/admin, /cliente e /api/cliente
   components/
-    admin/                       StatusSelect, LogoutButton, StatCard, StatusBarChart, LeadsTable, EditarProposta, ClienteCard, ClientesGrid
+    admin/                       StatusSelect, LogoutButton, StatCard, StatusBarChart, LeadsTable, EditarProposta, ClienteCard, ClientesGrid, VincularSolarZ
+    cliente/                     LoginClienteForm, LogoutClienteButton, DashboardProducao, GraficoProducaoDiaria
     ...                          Header, Hero, MiniSimulador, Dor, Diferenciais, Servicos, ComoFunciona, Depoimentos, CTAFinal, Footer, BotaoWhatsApp, SunArc, wizard, cartão de resultado
   lib/
     auth.ts                      sessão JWT do admin (jose)
+    auth-cliente.ts               sessão JWT do cliente (jose, cookie/segredo separados do admin)
+    solarz.ts                     cliente da API SolarZ (Basic Auth) — usinas, potência, performance, produção diária
     empresa-config.ts             dados institucionais reais da Pazelli + premissas financeiras
     dimensionamento.ts            motor de cálculo técnico — junta tudo abaixo
     geocode.ts                    CEP -> coordenadas (BrasilAPI, com fallback por capital)
@@ -148,7 +191,7 @@ src/
       logo-map.ts                 resolve logoKey -> imagem
     types.ts
 scripts/create-admin.mjs        cria/atualiza um usuário admin
-prisma/schema.prisma            Lead + Simulacao + AdminUser
+prisma/schema.prisma            Lead (+ acesso do cliente e vínculo SolarZ) + Simulacao + AdminUser
 ```
 
 ## Metodologia do dimensionamento técnico
@@ -184,17 +227,20 @@ consideradas aparecem no resultado do simulador e podem ser conferidas em
 ✅ Site institucional com identidade visual real da Pazelli · ✅ Simulador
 técnico · ✅ Captura de lead · ✅ Área admin com login, dashboard, busca/filtro
 e clientes fechados · ✅ Edição de proposta por negócio · ✅ Proposta em PDF
-completa (10 páginas, projeção de 25 anos, TIR/VPL/payback, financiamento)
+completa (10 páginas, projeção de 25 anos, TIR/VPL/payback, financiamento) ·
+✅ Área do cliente com monitoramento de produção via API da SolarZ
 
 **Ainda não construído:**
 
-- **Área do cliente**: login por e-mail para o lead ver o histórico das
-  próprias simulações (hoje só o admin vê).
 - **Configuração da empresa pela área admin** — hoje editado direto em
   `src/lib/empresa-config.ts`. Uma tela de configurações no admin é um bom
   próximo passo quando fizer sentido.
 - **Galeria de projetos executados como página própria** — hoje as fotos
   aparecem só na capa da proposta.
+- **App mobile** — o backend (`/api/cliente/*`) já foi pensado pra isso
+  (aceita token via header, não só cookie), mas o app em si ainda não existe.
+- **Fluxo de "esqueci minha senha" self-service para o cliente** — hoje é o
+  admin quem define/reseta a senha do cliente na tela de vínculo SolarZ.
 
 ## Nota sobre este ambiente de build
 

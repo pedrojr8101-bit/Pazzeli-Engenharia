@@ -53,6 +53,11 @@ model Lead {
   updatedAt  DateTime    @updatedAt
   simulacoes Simulacao[]
 
+  // Acesso do cliente à área de monitoramento (só preenchido depois que o
+  // negócio fecha e o admin libera o acesso — ver /admin/leads/[id]).
+  senhaHash     String?
+  solarzPlantId Int? // id da usina vinculada na SolarZ (openApi/seller/plant)
+
   @@index([email])
   @@index([status])
 }

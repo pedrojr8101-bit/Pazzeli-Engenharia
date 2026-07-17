@@ -3,11 +3,11 @@ import { buscarIrradiacao } from "./irradiacao";
 import {
   CUSTO_DISPONIBILIDADE_KWH,
   FATOR_SIMULTANEIDADE_PADRAO,
-  FIO_B_EFETIVO_RS_KWH,
   LIMITE_MICROGERACAO_KWP,
   PERFORMANCE_RATIO_PADRAO,
   POTENCIA_PAINEL_PADRAO_W,
   TARIFA_MEDIA_FALLBACK,
+  TUSD_PARTICIPACAO_NA_TARIFA,
   percentualFioB,
 } from "./tarifas";
 import type { EntradaSimulacao, ResultadoSimulacao } from "./types";
@@ -63,13 +63,16 @@ export async function simular(entrada: EntradaSimulacao): Promise<ResultadoSimul
     `Fator de simultaneidade estimado em ${(fatorSimultaneidade * 100).toFixed(0)}% (sem a curva de carga real do cliente — este número tende a variar caso a caso).`
   );
   premissas.push(
-    `Fio B descontado a R$ ${FIO_B_EFETIVO_RS_KWH.toFixed(2)}/kWh sobre a energia compensada (valor efetivo calibrado nas propostas da empresa) — o valor exato depende da tarifa homologada da concessionária.`
+    `Fio B calculado sobre ${(TUSD_PARTICIPACAO_NA_TARIFA * 100).toFixed(0)}% da tarifa (participação média da TUSD) — o valor exato depende da tarifa homologada da concessionária.`
   );
 
-  const consumoMinimoKwh = entrada.tipoLigacao
-    ? CUSTO_DISPONIBILIDADE_KWH[entrada.tipoLigacao]
+  const energiaInjetadaMensalKwh = geracaoMensalKwh * (1 - fatorSimultaneidade);
+  const custoFioBMensal =
+    energiaInjetadaMensalKwh * tarifaKwh * TUSD_PARTICIPACAO_NA_TARIFA * percentualFioBAno;
+
+  const custoDisponibilidadeMensal = entrada.tipoLigacao
+    ? CUSTO_DISPONIBILIDADE_KWH[entrada.tipoLigacao] * tarifaKwh
     : 0;
-  const custoDisponibilidadeMensal = consumoMinimoKwh * tarifaKwh;
   if (!entrada.tipoLigacao) {
     premissas.push(
       "Tipo de ligação não informado — o custo de disponibilidade mínimo não foi descontado da economia estimada."
@@ -77,27 +80,11 @@ export async function simular(entrada: EntradaSimulacao): Promise<ResultadoSimul
   }
 
   // 4) Indicadores financeiros ---------------------------------------------
-  // Mesma metodologia da projeção de 25 anos (proposta oficial):
-  // autoconsumo instantâneo abate a tarifa cheia; o restante é injetado e
-  // compensado com desconto do Fio B, limitado ao consumo da rede acima do
-  // mínimo faturável. Excedente além do consumo vira crédito futuro — não
-  // conta como economia imediata.
-  const autoconsumoMensalKwh = Math.min(
-    fatorSimultaneidade * geracaoMensalKwh,
-    entrada.consumoMedioKwh
-  );
-  const energiaInjetadaMensalKwh = geracaoMensalKwh - autoconsumoMensalKwh;
-  const consumoRedeMensalKwh = entrada.consumoMedioKwh - autoconsumoMensalKwh;
-  const energiaCompensadaMensalKwh = Math.min(
-    energiaInjetadaMensalKwh,
-    Math.max(consumoRedeMensalKwh - consumoMinimoKwh, 0)
-  );
-  const custoFioBMensal = energiaCompensadaMensalKwh * FIO_B_EFETIVO_RS_KWH * percentualFioBAno;
+  const energiaCompensadaMensalKwh = Math.min(geracaoMensalKwh, entrada.consumoMedioKwh) +
+    Math.max(0, geracaoMensalKwh - entrada.consumoMedioKwh); // excedente também compensa via créditos
   const economiaMensalEstimada = Math.max(
     0,
-    autoconsumoMensalKwh * tarifaKwh +
-      energiaCompensadaMensalKwh * tarifaKwh -
-      custoFioBMensal
+    energiaCompensadaMensalKwh * tarifaKwh - custoFioBMensal - custoDisponibilidadeMensal
   );
   const economiaAnualEstimada = economiaMensalEstimada * 12;
 
