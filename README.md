@@ -136,6 +136,20 @@ header nas chamadas.
 Variáveis necessárias (ver `.env.example`): `SOLARZ_USUARIO`, `SOLARZ_SENHA`
 (credenciais da conta raiz do integrador na SolarZ) e `CLIENTE_JWT_SECRET`.
 
+**Página de demonstração:** `/cliente/demo` — não precisa de login, mostra o
+mesmo layout do dashboard real com números de exemplo gerados na hora
+(deixado bem marcado como demonstração). Útil pra apresentar a área do
+cliente antes de ter a integração real (SolarZ ou Elekeeper) configurada.
+
+⚠️ **Sobre a Elekeeper (SAJ):** só existe caminho oficial pra integração —
+não construímos nada baseado em engenharia reversa/chaves extraídas do
+portal, mesmo que exista por aí. O caminho oficial é o "Open Platform" da
+Elekeeper (o link que você mandou originalmente): registro de organização
+de desenvolvedor, aprovação da SAJ, e então geração de App ID/App Secret.
+Assim que tiver as credenciais e a referência da API real, dá pra construir
+`lib/elekeeper.ts` do mesmo jeito que `lib/solarz.ts` foi construído — a
+partir do schema real, não de suposição.
+
 
 
 ```

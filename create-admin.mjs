@@ -1,0 +1,123 @@
+// Schema do banco — MVP: site institucional + simulação + captura de lead
+// As próximas fases (área do cliente, área admin, proposta em PDF) vão
+// reaproveitar o modelo Simulacao já com todos os dados técnicos calculados.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum StatusLead {
+  NOVO
+  CONTATADO
+  PROPOSTA_ENVIADA
+  CONVERTIDO
+  PERDIDO
+}
+
+enum GrupoTarifario {
+  A
+  B
+}
+
+enum TipoLigacao {
+  MONOFASICO
+  BIFASICO
+  TRIFASICO
+}
+
+model AdminUser {
+  id        String   @id @default(cuid())
+  nome      String
+  email     String   @unique
+  senhaHash String
+  createdAt DateTime @default(now())
+}
+
+model Lead {
+  id         String      @id @default(cuid())
+  nome       String
+  email      String
+  telefone   String
+  cep        String
+  cidade     String?
+  uf         String?
+  origem     String? // ex: "site", "instagram" — útil quando entrar tráfego pago
+  status     StatusLead  @default(NOVO)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  simulacoes Simulacao[]
+
+  // Acesso do cliente à área de monitoramento (só preenchido depois que o
+  // negócio fecha e o admin libera o acesso — ver /admin/leads/[id]).
+  senhaHash     String?
+  solarzPlantId Int? // id da usina vinculada na SolarZ (openApi/seller/plant)
+
+  @@index([email])
+  @@index([status])
+}
+
+model Simulacao {
+  id     String @id @default(cuid())
+  leadId String
+  lead   Lead   @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  // Entradas do usuário
+  cep             String
+  grupoTarifario  GrupoTarifario
+  tipoLigacao     TipoLigacao?
+  consumoMedioKwh Float
+  tarifaKwh       Float
+
+  // Localização resolvida (CEP -> coordenadas)
+  latitude  Float?
+  longitude Float?
+  cidade    String?
+  uf        String?
+
+  // Irradiação solar (NASA POWER — climatologia)
+  hspMedioAnual Float // horas de sol pleno, média anual
+  hspMensal     Json // array com 12 valores (jan..dez)
+
+  // Dimensionamento técnico
+  potenciaNecessariaKwp Float
+  potenciaInstaladaKwp  Float
+  numeroPaineis         Int
+  potenciaPainelW       Int
+  geracaoMensalKwh      Float
+  geracaoAnualKwh       Float
+  classificacaoGD       String // "microgeração" | "minigeração"
+
+  // Regras da Lei 14.300
+  percentualFioBAno         Float // percentual do Fio B vigente no ano da simulação
+  fatorSimultaneidade       Float // fração assumida de autoconsumo simultâneo
+  custoFioBMensal           Float
+  custoDisponibilidadeMensal Float
+
+  // Indicadores financeiros (estimados)
+  economiaMensalEstimada Float
+  economiaAnualEstimada  Float
+  investimentoEstimado   Float
+  paybackAnos            Float?
+
+  // Ajustes comerciais — preenchidos pelo admin, negócio a negócio.
+  // Quando presentes, prevalecem sobre os valores calculados na proposta.
+  investimentoFinal   Float? // preço negociado, se diferente da estimativa
+  observacoesProposta String? // condições, desconto, observações do fechamento
+  itensProposta       Json? // lista de itens do kit: [{descricao, unidade, quantidade, valorUnitario}]
+  tipoEstrutura       String? // Cerâmico, Metálico, Fibrocimento, Laje, Solo...
+
+  // Dados do cliente para o termo de aceite (coletados na hora do fechamento,
+  // não no simulador público, para não adicionar fricção ao formulário do site).
+  clienteCpf               String?
+  clienteEnderecoCompleto  String?
+
+  createdAt DateTime @default(now())
+
+  @@index([leadId])
+}
