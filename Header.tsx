@@ -1,60 +1,22 @@
-"use client";
+import Link from "next/link";
+import { empresaConfig } from "@/lib/empresa-config";
 
-import { useMemo, useState } from "react";
-import { ClienteCard } from "./ClienteCard";
-
-interface ClienteResumo {
-  leadId: string;
-  nome: string;
-  email: string;
-  telefone: string;
-  cidade: string | null;
-  uf: string | null;
-  fechadoEm: Date;
-  simulacao: {
-    id: string;
-    potenciaInstaladaKwp: number;
-    numeroPaineis: number;
-    economiaMensalEstimada: number;
-    investimentoEstimado: number;
-    investimentoFinal: number | null;
-  } | null;
-}
-
-export function ClientesGrid({ clientes }: { clientes: ClienteResumo[] }) {
-  const [busca, setBusca] = useState("");
-
-  const filtrados = useMemo(() => {
-    const termo = busca.trim().toLowerCase();
-    if (!termo) return clientes;
-    return clientes.filter(
-      (c) =>
-        c.nome.toLowerCase().includes(termo) ||
-        c.email.toLowerCase().includes(termo) ||
-        (c.cidade ?? "").toLowerCase().includes(termo)
-    );
-  }, [clientes, busca]);
+export function Header() {
+  const nomeEmpresa = empresaConfig.nome;
 
   return (
-    <div>
-      <input
-        value={busca}
-        onChange={(e) => setBusca(e.target.value)}
-        placeholder="Buscar cliente por nome, e-mail ou cidade..."
-        className="mb-4 w-full rounded-lg border border-duskline bg-dusk px-4 py-2.5 text-sm text-paper outline-none focus:border-sun sm:max-w-sm"
-      />
-
-      {filtrados.length === 0 ? (
-        <p className="rounded-2xl border border-duskline p-6 text-sm text-paper/50">
-          Nenhum cliente encontrado.
-        </p>
-      ) : (
-        <div className="grid gap-4 sm:grid-cols-2">
-          {filtrados.map((cliente) => (
-            <ClienteCard key={cliente.leadId} {...cliente} />
-          ))}
-        </div>
-      )}
-    </div>
+    <header className="sticky top-0 z-40 border-b border-borderlight bg-ivory/90 backdrop-blur-sm">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
+        <Link href="/" className="font-display text-lg font-semibold text-graphite">
+          {nomeEmpresa}
+        </Link>
+        <Link
+          href="/simulador"
+          className="rounded-full bg-sun px-5 py-2.5 text-sm font-semibold text-graphite transition hover:bg-sunlight"
+        >
+          Simular agora
+        </Link>
+      </div>
+    </header>
   );
 }
