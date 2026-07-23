@@ -69,22 +69,17 @@ model Lead {
   cep        String
   cidade     String?
   uf         String?
-  origem     String? // ex: "site", "instagram" — útil quando entrar tráfego pago
+  origem     String?
   status     StatusLead  @default(NOVO)
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
   simulacoes Simulacao[]
 
-  // Acesso do cliente à área de monitoramento (só preenchido depois que o
-  // negócio fecha e o admin libera o acesso — ver /admin/leads/[id]).
   senhaHash     String?
-  solarzPlantId Int? // id da usina vinculada na SolarZ (openApi/seller/plant)
+  solarzPlantId Int?
 
-  // Perfil do imóvel — usado no dashboard admin (residencial x comercial).
   tipoImovel TipoImovel?
 
-  // Link do contrato assinado (ex: PDF hospedado no Google Drive). Exibido
-  // na área do cliente — ver /admin/leads/[id] para preencher.
   contratoUrl String?
 
   chamados Chamado[]
@@ -98,55 +93,45 @@ model Simulacao {
   leadId String
   lead   Lead   @relation(fields: [leadId], references: [id], onDelete: Cascade)
 
-  // Entradas do usuário
   cep             String
   grupoTarifario  GrupoTarifario
   tipoLigacao     TipoLigacao?
   consumoMedioKwh Float
   tarifaKwh       Float
 
-  // Localização resolvida (CEP -> coordenadas)
   latitude  Float?
   longitude Float?
   cidade    String?
   uf        String?
 
-  // Irradiação solar (NASA POWER — climatologia)
-  hspMedioAnual Float // horas de sol pleno, média anual
-  hspMensal     Json // array com 12 valores (jan..dez)
+  hspMedioAnual Float
+  hspMensal     Json
 
-  // Dimensionamento técnico
   potenciaNecessariaKwp Float
   potenciaInstaladaKwp  Float
   numeroPaineis         Int
   potenciaPainelW       Int
   geracaoMensalKwh      Float
   geracaoAnualKwh       Float
-  classificacaoGD       String // "microgeração" | "minigeração"
+  classificacaoGD       String
 
-  // Regras da Lei 14.300
-  percentualFioBAno         Float // percentual do Fio B vigente no ano da simulação
-  fatorSimultaneidade       Float // fração assumida de autoconsumo simultâneo
+  percentualFioBAno         Float
+  fatorSimultaneidade       Float
   custoFioBMensal           Float
   custoDisponibilidadeMensal Float
 
-  // Indicadores financeiros (estimados)
   economiaMensalEstimada Float
   economiaAnualEstimada  Float
   investimentoEstimado   Float
   paybackAnos            Float?
 
-  // Ajustes comerciais — preenchidos pelo admin, negócio a negócio.
-  // Quando presentes, prevalecem sobre os valores calculados na proposta.
-  investimentoFinal   Float? // preço negociado, se diferente da estimativa
-  observacoesProposta String? // condições, desconto, observações do fechamento
-  itensProposta       Json? // lista de itens do kit: [{descricao, unidade, quantidade, valorUnitario}]
-  tipoEstrutura       String? // Cerâmico, Metálico, Fibrocimento, Laje, Solo...
-  margemLucroPercentual Float? // margem aplicada sobre o custo dos itens, só de apoio pro cálculo do preço
-  valorServico        Float? // taxa de serviço/instalação vendida, separada do custo de material (itensProposta)
+  investimentoFinal   Float?
+  observacoesProposta String?
+  itensProposta       Json?
+  tipoEstrutura       String?
+  margemLucroPercentual Float?
+  valorServico        Float?
 
-  // Dados do cliente para o termo de aceite (coletados na hora do fechamento,
-  // não no simulador público, para não adicionar fricção ao formulário do site).
   clienteCpf               String?
   clienteEnderecoCompleto  String?
 
@@ -155,10 +140,6 @@ model Simulacao {
   @@index([leadId])
 }
 
-// Chamado de pós-venda — aberto pelo cliente na área dele (limpeza,
-// manutenção, revisão técnica...) e gerenciado pelo admin em /admin/chamados.
-// valorCobrado, quando preenchido, alimenta o "Faturamento pós-venda" do
-// dashboard admin.
 model Chamado {
   id     String @id @default(cuid())
   leadId String
@@ -176,3 +157,5 @@ model Chamado {
   @@index([leadId])
   @@index([status])
 }
+
+
