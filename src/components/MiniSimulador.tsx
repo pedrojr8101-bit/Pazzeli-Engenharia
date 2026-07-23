@@ -10,11 +10,13 @@ const PERFORMANCE_RATIO = 0.78;
 const CUSTO_POR_KWP = 4500; // custo médio estimado por kWp instalado, só para a prévia
 const PARCELAS_FINANCIAMENTO = 84;
 
-const TIPOS_IMOVEL = [
+type TipoImovelValor = "RESIDENCIAL" | "COMERCIAL" | "RURAL";
+
+const TIPOS_IMOVEL: { valor: TipoImovelValor; rotulo: string }[] = [
   { valor: "RESIDENCIAL", rotulo: "Residencial" },
   { valor: "COMERCIAL", rotulo: "Comercial" },
   { valor: "RURAL", rotulo: "Rural" },
-] as const;
+];
 
 function moeda(valor: number, casas = 0) {
   return valor.toLocaleString("pt-BR", {
@@ -25,9 +27,7 @@ function moeda(valor: number, casas = 0) {
 }
 
 export function MiniSimulador() {
-  const [tipoImovel, setTipoImovel] = useState<(typeof TIPOS_IMOVEL)[number]["valor"]>(
-    "RESIDENCIAL"
-  );
+  const [tipoImovel, setTipoImovel] = useState<TipoImovelValor>("RESIDENCIAL");
   const [valorConta, setValorConta] = useState(350);
 
   const estimativa = useMemo(() => {
@@ -54,11 +54,9 @@ export function MiniSimulador() {
 
   const rotuloTipo = TIPOS_IMOVEL.find((t) => t.valor === tipoImovel)?.rotulo ?? "";
   const mensagemWhatsapp = encodeURIComponent(
-    "Olá! Simulei no site: imóvel " +
-      rotuloTipo.toLowerCase() +
-      ", conta de aproximadamente " +
-      moeda(valorConta) +
-      "/mês. Gostaria de um orçamento sem compromisso."
+    `Olá! Simulei no site: imóvel ${rotuloTipo.toLowerCase()}, conta de aproximadamente ${moeda(
+      valorConta
+    )}/mês. Gostaria de um orçamento sem compromisso.`
   );
 
   return (
@@ -120,9 +118,9 @@ export function MiniSimulador() {
 
           <div className="mt-4 flex flex-wrap gap-4 text-xs text-graphitesoft">
             <span>
-              Retorno estimado: cerca de {Math.max(1, Math.round(estimativa.paybackAnos))} anos
+              ⏱ Retorno estimado: cerca de {Math.max(1, Math.round(estimativa.paybackAnos))} anos
             </span>
-            <span>Financia em até {PARCELAS_FINANCIAMENTO}x</span>
+            <span>🏦 Financia em até {PARCELAS_FINANCIAMENTO}x</span>
           </div>
 
           {estimativa.cabeNaEconomia && (
@@ -143,7 +141,7 @@ export function MiniSimulador() {
           <span aria-hidden>→</span>
         </Link>
         {Boolean(empresaConfig.whatsapp) && (
-          
+          <a
             href={`https://wa.me/${empresaConfig.whatsapp}?text=${mensagemWhatsapp}`}
             target="_blank"
             rel="noopener noreferrer"
