@@ -24,6 +24,7 @@ interface EditarPropostaProps {
   clienteCpfAtual: string | null;
   clienteEnderecoAtual: string | null;
   margemLucroAtual: number | null;
+  valorServicoAtual: number | null;
 }
 
 const TIPOS_ESTRUTURA = ["Cerâmico", "Metálico", "Fibrocimento", "Laje", "Solo"];
@@ -42,6 +43,7 @@ export function EditarProposta({
   clienteCpfAtual,
   clienteEnderecoAtual,
   margemLucroAtual,
+  valorServicoAtual,
 }: EditarPropostaProps) {
   const router = useRouter();
   const [aberto, setAberto] = useState(false);
@@ -57,6 +59,9 @@ export function EditarProposta({
   const [clienteEndereco, setClienteEndereco] = useState(clienteEnderecoAtual ?? "");
   const [margemLucro, setMargemLucro] = useState(
     margemLucroAtual !== null && margemLucroAtual !== undefined ? String(margemLucroAtual) : ""
+  );
+  const [valorServico, setValorServico] = useState(
+    valorServicoAtual !== null && valorServicoAtual !== undefined ? String(valorServicoAtual) : ""
   );
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
@@ -96,6 +101,7 @@ export function EditarProposta({
           clienteCpf: clienteCpf.trim() || null,
           clienteEnderecoCompleto: clienteEndereco.trim() || null,
           margemLucroPercentual: margemLucro ? Number(margemLucro) : null,
+          valorServico: valorServico ? Number(valorServico.replace(",", ".")) : null,
         }),
       });
 
@@ -274,6 +280,24 @@ export function EditarProposta({
             </>
           )}
         </div>
+      </div>
+
+      <div>
+        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-paper/40">
+          Taxa de serviço (instalação/mão de obra)
+        </p>
+        <label htmlFor={`servico-${simulacaoId}`} className="mb-1 block text-xs text-paper/50">
+          Valor da taxa de serviço vendida (R$) — separado do custo de material acima, usado no
+          dashboard de faturamento
+        </label>
+        <input
+          id={`servico-${simulacaoId}`}
+          inputMode="decimal"
+          value={valorServico}
+          onChange={(e) => setValorServico(e.target.value.replace(/[^\d.,]/g, ""))}
+          placeholder="ex: 3500"
+          className="w-40 rounded-lg border border-duskline bg-dusk px-3 py-2 text-sm text-paper outline-none focus:border-sun"
+        />
       </div>
 
       <div>

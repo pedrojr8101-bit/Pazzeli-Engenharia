@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { StatusSelect } from "@/components/admin/StatusSelect";
 import { EditarProposta } from "@/components/admin/EditarProposta";
 import { VincularSolarZ } from "@/components/admin/VincularSolarZ";
+import { DadosAdicionaisLead } from "@/components/admin/DadosAdicionaisLead";
 
 export const dynamic = "force-dynamic";
 
@@ -38,8 +39,13 @@ export default async function DetalheLeadPage({ params }: { params: { id: string
         <StatusSelect leadId={lead.id} statusAtual={lead.status} />
       </div>
 
-      <div className="mt-6">
+      <div className="mt-6 grid gap-4 sm:grid-cols-2">
         <VincularSolarZ leadId={lead.id} emailLead={lead.email} plantIdAtual={lead.solarzPlantId} />
+        <DadosAdicionaisLead
+          leadId={lead.id}
+          tipoImovelAtual={lead.tipoImovel}
+          contratoUrlAtual={lead.contratoUrl}
+        />
       </div>
 
       <h2 className="mb-4 mt-10 font-display text-lg font-semibold text-paper">
@@ -121,6 +127,7 @@ export default async function DetalheLeadPage({ params }: { params: { id: string
                   clienteCpfAtual={sim.clienteCpf}
                   clienteEnderecoAtual={sim.clienteEnderecoCompleto}
                   margemLucroAtual={sim.margemLucroPercentual}
+                  valorServicoAtual={sim.valorServico}
                 />
               </div>
             </div>

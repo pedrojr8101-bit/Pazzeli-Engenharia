@@ -18,19 +18,28 @@ export async function GET(_request: Request, { params }: { params: { id: string 
 }
 
 const schemaAtualizacao = z.object({
-  status: z.enum(["NOVO", "CONTATADO", "PROPOSTA_ENVIADA", "CONVERTIDO", "PERDIDO"]),
+  status: z.enum(["NOVO", "CONTATADO", "PROPOSTA_ENVIADA", "CONVERTIDO", "PERDIDO"]).optional(),
+  tipoImovel: z.enum(["RESIDENCIAL", "COMERCIAL"]).nullable().optional(),
+  contratoUrl: z.string().url().max(500).nullable().optional(),
 });
 
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
   const parsed = schemaAtualizacao.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
-    return NextResponse.json({ erro: "Status inválido." }, { status: 400 });
+    return NextResponse.json(
+      { erro: "Dados inválidos.", detalhes: parsed.error.flatten().fieldErrors },
+      { status: 400 }
+    );
+  }
+
+  if (Object.keys(parsed.data).length === 0) {
+    return NextResponse.json({ erro: "Nenhum dado para atualizar." }, { status: 400 });
   }
 
   try {
     const lead = await prisma.lead.update({
       where: { id: params.id },
-      data: { status: parsed.data.status },
+      data: parsed.data,
     });
     return NextResponse.json({ lead });
   } catch {
