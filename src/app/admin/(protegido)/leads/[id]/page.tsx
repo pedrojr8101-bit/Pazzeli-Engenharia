@@ -3,8 +3,9 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { StatusSelect } from "@/components/admin/StatusSelect";
 import { EditarProposta } from "@/components/admin/EditarProposta";
-import { VincularSolarZ } from "@/components/admin/VincularSolarZ";
 import { DadosAdicionaisLead } from "@/components/admin/DadosAdicionaisLead";
+import { AcessoMonitoramento } from "@/components/admin/AcessoMonitoramento";
+import { AcessoClienteSite } from "@/components/admin/AcessoClienteSite";
 
 export const dynamic = "force-dynamic";
 
@@ -39,8 +40,14 @@ export default async function DetalheLeadPage({ params }: { params: { id: string
         <StatusSelect leadId={lead.id} statusAtual={lead.status} />
       </div>
 
-      <div className="mt-6 grid gap-4 sm:grid-cols-2">
-        <VincularSolarZ leadId={lead.id} emailLead={lead.email} plantIdAtual={lead.solarzPlantId} />
+      <div className="mt-6 grid gap-4 lg:grid-cols-2">
+        <AcessoClienteSite leadId={lead.id} emailLead={lead.email} />
+        <AcessoMonitoramento
+          leadId={lead.id}
+          linkAtual={lead.monitoramentoLink}
+          usuarioAtual={lead.monitoramentoUsuario}
+          senhaAtual={lead.monitoramentoSenha}
+        />
         <DadosAdicionaisLead
           leadId={lead.id}
           tipoImovelAtual={lead.tipoImovel}

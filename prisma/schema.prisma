@@ -87,6 +87,14 @@ model Lead {
   // na área do cliente — ver /admin/leads/[id] para preencher.
   contratoUrl String?
 
+  // Acesso do cliente à plataforma do provedor de monitoramento (ex: SolarZ,
+  // SAJ, Elekeeper...), preenchido manualmente pelo admin quando não há
+  // integração via API disponível. Exibido na área do cliente com um botão
+  // pra abrir o site do provedor.
+  monitoramentoLink    String?
+  monitoramentoUsuario String?
+  monitoramentoSenha   String?
+
   chamados Chamado[]
 
   @@index([email])

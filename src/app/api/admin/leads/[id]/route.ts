@@ -21,6 +21,9 @@ const schemaAtualizacao = z.object({
   status: z.enum(["NOVO", "CONTATADO", "PROPOSTA_ENVIADA", "CONVERTIDO", "PERDIDO"]).optional(),
   tipoImovel: z.enum(["RESIDENCIAL", "COMERCIAL"]).nullable().optional(),
   contratoUrl: z.string().url().max(500).nullable().optional(),
+  monitoramentoLink: z.string().url().max(500).nullable().optional(),
+  monitoramentoUsuario: z.string().max(200).nullable().optional(),
+  monitoramentoSenha: z.string().max(200).nullable().optional(),
 });
 
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
