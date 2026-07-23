@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { DashboardProducao } from "@/components/cliente/DashboardProducao";
 import { InfoEmpresaCard } from "@/components/cliente/InfoEmpresaCard";
 import { ContratoCard } from "@/components/cliente/ContratoCard";
+import { AcessoMonitoramentoCard } from "@/components/cliente/AcessoMonitoramentoCard";
 import { PainelPosVenda } from "@/components/cliente/PainelPosVenda";
 import { COOKIE_SESSAO_CLIENTE, verificarTokenSessaoCliente } from "@/lib/auth-cliente";
 import { prisma } from "@/lib/prisma";
@@ -15,7 +16,12 @@ export default async function ClienteDashboardPage() {
   const lead = sessao
     ? await prisma.lead.findUnique({
         where: { id: sessao.leadId },
-        select: { contratoUrl: true },
+        select: {
+          contratoUrl: true,
+          monitoramentoLink: true,
+          monitoramentoUsuario: true,
+          monitoramentoSenha: true,
+        },
       })
     : null;
 
@@ -35,6 +41,11 @@ export default async function ClienteDashboardPage() {
         <div className="grid gap-4 sm:grid-cols-2">
           <InfoEmpresaCard />
           <ContratoCard contratoUrl={lead?.contratoUrl ?? null} />
+          <AcessoMonitoramentoCard
+            link={lead?.monitoramentoLink ?? null}
+            usuario={lead?.monitoramentoUsuario ?? null}
+            senha={lead?.monitoramentoSenha ?? null}
+          />
         </div>
       </div>
 
