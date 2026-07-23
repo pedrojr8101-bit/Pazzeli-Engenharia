@@ -1,6 +1,7 @@
 import { ComoFunciona } from "@/components/ComoFunciona";
 import { Diferenciais } from "@/components/Diferenciais";
 import { Dor } from "@/components/Dor";
+import { NossaHistoria } from "@/components/NossaHistoria";
 import { Servicos } from "@/components/Servicos";
 import { Depoimentos } from "@/components/Depoimentos";
 import { CTAFinal } from "@/components/CTAFinal";
@@ -16,6 +17,7 @@ export default function HomePage() {
       <main>
         <Hero />
         <Dor />
+        <NossaHistoria />
         <Diferenciais />
         <Servicos />
         <ComoFunciona />
