@@ -54,9 +54,11 @@ export function MiniSimulador() {
 
   const rotuloTipo = TIPOS_IMOVEL.find((t) => t.valor === tipoImovel)?.rotulo ?? "";
   const mensagemWhatsapp = encodeURIComponent(
-    `Olá! Simulei no site: imóvel ${rotuloTipo.toLowerCase()}, conta de aproximadamente ${moeda(
-      valorConta
-    )}/mês. Gostaria de um orçamento sem compromisso.`
+    "Olá! Simulei no site: imóvel " +
+      rotuloTipo.toLowerCase() +
+      ", conta de aproximadamente " +
+      moeda(valorConta) +
+      "/mês. Gostaria de um orçamento sem compromisso."
   );
 
   return (
@@ -118,9 +120,9 @@ export function MiniSimulador() {
 
           <div className="mt-4 flex flex-wrap gap-4 text-xs text-graphitesoft">
             <span>
-              ⏱ Retorno estimado: cerca de {Math.max(1, Math.round(estimativa.paybackAnos))} anos
+              Retorno estimado: cerca de {Math.max(1, Math.round(estimativa.paybackAnos))} anos
             </span>
-            <span>🏦 Financia em até {PARCELAS_FINANCIAMENTO}x</span>
+            <span>Financia em até {PARCELAS_FINANCIAMENTO}x</span>
           </div>
 
           {estimativa.cabeNaEconomia && (
