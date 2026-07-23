@@ -19,7 +19,14 @@ export async function POST(request: Request) {
 
   const { email, senha } = parsed.data;
 
-  const lead = await prisma.lead.findFirst({ where: { email } });
+  // Pode existir mais de um lead com o mesmo e-mail (ex: a pessoa rodou o
+  // simulador mais de uma vez). Priorizamos o que já tem senha liberada —
+  // sem isso, "findFirst" podia pegar um lead antigo sem senhaHash e
+  // recusar um login que deveria funcionar.
+  const lead = await prisma.lead.findFirst({
+    where: { email, senhaHash: { not: null } },
+    orderBy: { updatedAt: "desc" },
+  });
   const senhaValida = lead?.senhaHash ? await bcrypt.compare(senha, lead.senhaHash) : false;
 
   if (!lead || !senhaValida) {
