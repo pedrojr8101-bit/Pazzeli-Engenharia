@@ -3,7 +3,15 @@ import { prisma } from "@/lib/prisma";
 import { StatCard } from "@/components/admin/StatCard";
 import { StatusBarChart } from "@/components/admin/StatusBarChart";
 import { BarraComparativa } from "@/components/admin/BarraComparativa";
+import { LinhaTempoChart } from "@/components/admin/LinhaTempoChart";
+import { TendenciaCard } from "@/components/admin/TendenciaCard";
+import { ComparativoMercado } from "@/components/admin/ComparativoMercado";
 import { LeadsTable } from "@/components/admin/LeadsTable";
+
+// Referência geral de taxa de conversão do setor solar B2C no Brasil — é uma
+// régua aproximada de mercado, não um dado exclusivo da Pazelli. Ajuste se
+// tiver um benchmark melhor.
+const REFERENCIA_MERCADO_CONVERSAO = 15;
 
 export const dynamic = "force-dynamic";
 
@@ -72,6 +80,59 @@ export default async function AdminDashboardPage() {
     (c) => c.status === "ABERTO" || c.status === "EM_ANDAMENTO"
   ).length;
 
+  // Série dos últimos 6 meses — leads captados x negócios fechados por mês,
+  // calculada em cima das datas reais dos leads (createdAt).
+  const NOMES_MES = [
+    "jan",
+    "fev",
+    "mar",
+    "abr",
+    "mai",
+    "jun",
+    "jul",
+    "ago",
+    "set",
+    "out",
+    "nov",
+    "dez",
+  ];
+  const hoje = new Date();
+  const chavesMeses: string[] = [];
+  const rotulosMeses: string[] = [];
+  for (let i = 5; i >= 0; i--) {
+    const data = new Date(hoje.getFullYear(), hoje.getMonth() - i, 1);
+    chavesMeses.push(`${data.getFullYear()}-${data.getMonth()}`);
+    rotulosMeses.push(NOMES_MES[data.getMonth()]);
+  }
+
+  const leadsPorMes: Record<string, number> = Object.fromEntries(chavesMeses.map((c) => [c, 0]));
+  const convertidosPorMes: Record<string, number> = Object.fromEntries(
+    chavesMeses.map((c) => [c, 0])
+  );
+
+  for (const lead of leads) {
+    const data = new Date(lead.createdAt);
+    const chave = `${data.getFullYear()}-${data.getMonth()}`;
+    if (chave in leadsPorMes) {
+      leadsPorMes[chave] += 1;
+      if (lead.status === "CONVERTIDO") convertidosPorMes[chave] += 1;
+    }
+  }
+
+  const serieLeads = chavesMeses.map((chave, i) => ({
+    rotulo: rotulosMeses[i],
+    valor: leadsPorMes[chave],
+  }));
+  const serieConvertidos = chavesMeses.map((chave, i) => ({
+    rotulo: rotulosMeses[i],
+    valor: convertidosPorMes[chave],
+  }));
+
+  const leadsMesAtual = leadsPorMes[chavesMeses[5]];
+  const leadsMesAnterior = leadsPorMes[chavesMeses[4]];
+  const convertidosMesAtual = convertidosPorMes[chavesMeses[5]];
+  const convertidosMesAnterior = convertidosPorMes[chavesMeses[4]];
+
   return (
     <div>
       <h1 className="mb-8 font-display text-2xl font-semibold text-paper">Dashboard</h1>
@@ -108,7 +169,39 @@ export default async function AdminDashboardPage() {
         </Link>
       </div>
 
+      <div className="mt-6 grid gap-4 sm:grid-cols-2">
+        <TendenciaCard
+          rotulo="Leads captados este mês"
+          valorAtual={leadsMesAtual}
+          valorAnterior={leadsMesAnterior}
+        />
+        <TendenciaCard
+          rotulo="Negócios fechados este mês"
+          valorAtual={convertidosMesAtual}
+          valorAnterior={convertidosMesAnterior}
+        />
+      </div>
+
+      <div className="mt-6">
+        <LinhaTempoChart
+          titulo="Evolução dos últimos 6 meses"
+          series={[
+            { nome: "Leads captados", cor: "#F5C24B", corArea: "#F5C24B", pontos: serieLeads },
+            {
+              nome: "Negócios fechados",
+              cor: "#5DCAA5",
+              corArea: "#5DCAA5",
+              pontos: serieConvertidos,
+            },
+          ]}
+        />
+      </div>
+
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
+        <ComparativoMercado
+          suaTaxa={taxaConversao}
+          referenciaMercado={REFERENCIA_MERCADO_CONVERSAO}
+        />
         <BarraComparativa
           titulo="Tipo de telhado mais vendido (negócios fechados)"
           itens={Object.entries(contagemTelhado)
@@ -116,6 +209,9 @@ export default async function AdminDashboardPage() {
             .sort((a, b) => b.valor - a.valor)}
           vazio="Nenhum negócio fechado ainda."
         />
+      </div>
+
+      <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <BarraComparativa
           titulo="Residencial x Comercial (negócios fechados)"
           itens={[
@@ -124,11 +220,10 @@ export default async function AdminDashboardPage() {
           ]}
           vazio="Nenhum negócio fechado com tipo de imóvel informado."
         />
+        <StatusBarChart contagem={contagemStatus} />
       </div>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_1.4fr]">
-        <StatusBarChart contagem={contagemStatus} />
-
+      <div className="mt-6">
         <div className="rounded-2xl border border-duskline p-5">
           <p className="mb-3 text-sm font-semibold text-paper">Leads mais recentes</p>
           <div className="space-y-2">
@@ -144,9 +239,7 @@ export default async function AdminDashboardPage() {
                 </span>
               </Link>
             ))}
-            {leads.length === 0 && (
-              <p className="text-sm text-paper/40">Nenhum lead ainda.</p>
-            )}
+            {leads.length === 0 && <p className="text-sm text-paper/40">Nenhum lead ainda.</p>}
           </div>
         </div>
       </div>
